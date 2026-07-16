@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../lib/supabase';
 import { Toaster } from 'react-hot-toast';
+import { AppProvider } from '../context/AppContext';
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function App({ Component, pageProps }) {
   }, [router.pathname]);
 
   return (
-    <>
+    <AppProvider>
       <Toaster
         position="top-right"
         toastOptions={{
@@ -39,6 +40,6 @@ export default function App({ Component, pageProps }) {
         }}
       />
       <Component {...pageProps} />
-    </>
+    </AppProvider>
   );
 }

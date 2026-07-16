@@ -28,6 +28,7 @@ import {
 } from 'react-icons/fi';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
+import { useAppContext } from '../../context/AppContext';
 
 /* ------------------------------------------------------------------ */
 /*  Nav definition                                                      */
@@ -76,36 +77,9 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
   const [userInitial, setUserInitial] = useState('A');
   const [loggingOut, setLoggingOut] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [theme, setTheme] = useState('dark');
 
-  /* Theme and Sidebar State management */
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('anantya-theme');
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    }
-    
-    const savedCollapse = localStorage.getItem('anantya-sidebar-collapsed');
-    if (savedCollapse === 'true') {
-      setIsCollapsed(true);
-    }
-  }, []);
-
-  const toggleCollapse = () => {
-    const newVal = !isCollapsed;
-    setIsCollapsed(newVal);
-    localStorage.setItem('anantya-sidebar-collapsed', newVal.toString());
-  };
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('anantya-theme', newTheme);
-  };
+  const { isCollapsed, toggleCollapse, theme, toggleTheme } = useAppContext();
 
   /* Fetch current user & Auto-create Author profile */
   useEffect(() => {
