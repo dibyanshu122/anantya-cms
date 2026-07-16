@@ -1,0 +1,49 @@
+{
+  "name": "anantya-cms",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@google/genai": "^2.11.0",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/supabase-js": "^2.49.4",
+    "@tiptap/extension-code-block": "^2.11.7",
+    "@tiptap/extension-heading": "^2.11.7",
+    "@tiptap/extension-image": "^2.11.7",
+    "@tiptap/extension-link": "^2.11.7",
+    "@tiptap/extension-placeholder": "^2.11.7",
+    "@tiptap/extension-table": "^2.11.7",
+    "@tiptap/extension-table-cell": "^2.11.7",
+    "@tiptap/extension-table-header": "^2.11.7",
+    "@tiptap/extension-table-row": "^2.11.7",
+    "@tiptap/extension-text-align": "^2.11.7",
+    "@tiptap/extension-underline": "^2.11.7",
+    "@tiptap/react": "^2.11.7",
+    "@tiptap/starter-kit": "^2.11.7",
+    "cheerio": "^1.2.0",
+    "date-fns": "^4.1.0",
+    "feed": "^6.0.0",
+    "formidable": "^3.5.4",
+    "js-cookie": "^3.0.5",
+    "next": "^15.3.2",
+    "papaparse": "^5.5.3",
+    "pg": "^8.22.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.57.0",
+    "react-hot-toast": "^2.5.2",
+    "react-icons": "^5.5.0",
+    "sharp": "^0.35.3",
+    "slugify": "^1.6.6",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^9",
+    "eslint-config-next": "^15.3.2"
+  }
+}
