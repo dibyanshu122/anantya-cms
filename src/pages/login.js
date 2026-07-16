@@ -354,9 +354,6 @@ export default function LoginPage() {
           </form>
 
           <div className="login-footer">
-            <div style={{ marginBottom: '10px' }}>
-              Don't have an account? <a href="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 'bold' }}>Register Here</a>
-            </div>
             <strong>Anantya.ai</strong> — Internal CMS &bull; Admin access only
           </div>
         </div>

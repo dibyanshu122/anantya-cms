@@ -15,6 +15,7 @@ import {
   FiPieChart,
   FiLogOut,
   FiUser,
+  FiUsers,
   FiChevronRight,
   FiBell,
   FiExternalLink,
@@ -61,7 +62,7 @@ const NAV_SECTIONS = [
       { label: 'Reports',       icon: FiPieChart,     href: '/reports' },
       { label: 'Announcements', icon: FiMessageSquare, href: '/announcements' },
       { label: 'Authors',       icon: FiUser,         href: '/authors' },
-      { label: 'Users & Roles', icon: FiUser,         href: '/users' },
+      { label: 'Users & Roles', icon: FiUsers,        href: '/users' },
     ],
   },
 ];
@@ -117,8 +118,24 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
             }]);
           }
         } catch (e) {
-          // Ignore errors like duplicate inserts
           console.error('Error syncing author:', e);
+        }
+
+        // Check if user exists in cms_users, if not create it as admin
+        try {
+          const { data: existingCmsUser } = await supabase.from('cms_users').select('id').eq('email', email).single();
+          if (!existingCmsUser) {
+            const name = email.split('@')[0];
+            await supabase.from('cms_users').insert([{
+              id: session.user.id, // Provide the auth user ID!
+              full_name: name,
+              email: email,
+              role: 'admin',
+              is_active: true
+            }]);
+          }
+        } catch (e) {
+          console.error('Error syncing cms user:', e);
         }
       }
     };
