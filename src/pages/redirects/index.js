@@ -168,6 +168,11 @@ export default function RedirectsIndex() {
   const [logs, setLogs] = useState([]);
   const [loadingLogs, setLoadingLogs] = useState(false);
 
+  const showToast = useCallback((msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  }, []);
+
   const fetchLogs = useCallback(async () => {
     setLoadingLogs(true);
     const { data, error } = await supabase.from('redirect_logs').select('*, redirects(source_url, destination_url)').order('logged_at', { ascending: false }).limit(100);
@@ -175,23 +180,18 @@ export default function RedirectsIndex() {
     setLoadingLogs(false);
   }, []);
 
-  useEffect(() => { 
-    if (activeTab === 'redirects') fetchRedirects();
-    if (activeTab === 'logs') fetchLogs();
-  }, [activeTab, fetchRedirects, fetchLogs]);
-
   const fetchRedirects = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.from('redirects').select('*').order('created_at', { ascending: false });
     if (error) showToast(error.message, 'error');
     else setRedirects(data || []);
     setLoading(false);
-  }, []);
+  }, [showToast]);
 
-  const showToast = (msg, type = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+  useEffect(() => { 
+    if (activeTab === 'redirects') fetchRedirects();
+    if (activeTab === 'logs') fetchLogs();
+  }, [activeTab, fetchRedirects, fetchLogs]);
 
   const filtered = redirects.filter(r =>
     !search || r.source_url?.toLowerCase().includes(search.toLowerCase()) || r.destination_url?.toLowerCase().includes(search.toLowerCase())
