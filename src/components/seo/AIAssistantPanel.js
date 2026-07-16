@@ -45,7 +45,7 @@ export default function AIAssistantPanel({ content, focusKeyword, onApplyMeta, o
       const res = await fetch('/api/ai/suggest-keywords', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ focusKeyword }),
+        body: JSON.stringify({ focusKeyword, content }),
       });
       if (!res.ok) throw new Error('Failed to suggest keywords');
       const data = await res.json();

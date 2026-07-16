@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { focusKeyword } = req.body;
+  const { focusKeyword, content } = req.body;
 
   if (!focusKeyword) {
     return res.status(400).json({ message: 'Focus keyword is required' });
@@ -15,6 +15,7 @@ export default async function handler(req, res) {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     
     const prompt = `You are an expert SEO specialist. Generate a list of 5-10 highly relevant LSI (Latent Semantic Indexing) keywords or long-tail keywords for the target focus keyword: "${focusKeyword}".
+    ${content ? `IMPORTANT: Analyze the following content and suggest LSI keywords that are specifically relevant to what is written in this content.\n\nContent:\n${content.substring(0, 3000)}\n\n` : ''}
     Output ONLY a raw JSON array of strings. Do not include markdown formatting or backticks.`;
 
     const response = await ai.models.generateContent({

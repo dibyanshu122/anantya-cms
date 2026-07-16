@@ -113,6 +113,7 @@ export default function SeoEditor() {
   });
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [pageContext, setPageContext] = useState('');
   const [toast, setToast] = useState(null);
 
   const showToast = (msg, type = 'success') => {
@@ -219,12 +220,19 @@ export default function SeoEditor() {
                   placeholder="/about" style={inputStyle} />
               </FormRow>
             </div>
+            <div style={{ marginTop: 14 }}>
+              <FormRow label="Page Context (For AI Assistant)" hint="Briefly describe what this page is about so AI can suggest better Meta Tags and Keywords.">
+                <textarea value={pageContext} onChange={e => setPageContext(e.target.value)}
+                  placeholder="e.g. This page is about our new Affiliate Program where users can earn 20% commission..." rows={2}
+                  style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
+              </FormRow>
+            </div>
           </SectionCard>
 
           {/* Core SEO */}
           <SectionCard title="Core SEO Fields">
             <AIAssistantPanel 
-              content={`SEO for page: ${form.page_name}`} 
+              content={pageContext ? `Page Name: ${form.page_name}. Context: ${pageContext}` : `SEO for page: ${form.page_name}`} 
               focusKeyword={form.focus_keyword}
               onApplyMeta={(meta) => setForm(f => ({ ...f, seo_title: meta.title, seo_description: meta.description }))}
               onApplyKeywords={(kws) => setForm(f => ({ ...f, focus_keyword: kws.join(', ') }))}

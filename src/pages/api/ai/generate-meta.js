@@ -15,9 +15,11 @@ export default async function handler(req, res) {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     
     const prompt = `You are an expert SEO specialist. Generate an SEO Meta Title and Meta Description for the following content.
-    The title must be between 50 and 60 characters.
-    The description must be between 150 and 160 characters.
-    ${focusKeyword ? `You must include the focus keyword "${focusKeyword}" in both the title and description.` : ''}
+    CRITICAL CONSTRAINTS:
+    1. TITLE LENGTH: Must be STRICTLY between 50 and 60 characters long.
+    2. DESCRIPTION LENGTH: Must be STRICTLY between 150 and 160 characters long.
+    ${focusKeyword ? `3. KEYWORD: You MUST include the exact focus keyword "${focusKeyword}" in BOTH the title and the description.` : ''}
+    
     Output ONLY a raw JSON object with keys "title" and "description". Do not include markdown formatting or backticks.
     
     Content:
