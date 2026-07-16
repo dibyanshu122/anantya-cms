@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       }
     });
 
-    let resultText = response.text().replace(/^```json\s*|```$/g, '').trim();
+    let resultText = response.text.replace(/^```json\s*|```$/g, '').trim();
     const resultJson = JSON.parse(resultText);
 
     return res.status(200).json(resultJson);

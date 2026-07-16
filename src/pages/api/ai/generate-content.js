@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       }
     });
 
-    const generatedHtml = response.text().replace(/^```html\s*|```$/g, '').trim();
+    const generatedHtml = response.text.replace(/^```html\s*|```$/g, '').trim();
 
     return res.status(200).json({ content: generatedHtml });
   } catch (error) {
