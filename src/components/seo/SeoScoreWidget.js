@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { FiCheckCircle, FiXCircle, FiAlertCircle } from 'react-icons/fi';
 
-export default function SeoScoreWidget({ title = '', description = '', keyword = '', content = '' }) {
+export default function SeoScoreWidget({ title = '', description = '', keyword = '', content = '', onScoreChange }) {
   // Strip HTML to get plain text word count
   const plainText = content.replace(/<[^>]+>/g, ' ');
   const wordCount = plainText.trim().split(/\s+/).filter(word => word.length > 0).length;
@@ -122,6 +122,12 @@ export default function SeoScoreWidget({ title = '', description = '', keyword =
 
   const passedCount = checks.filter(c => c.passed).length;
   const score = checks.length > 0 ? Math.round((passedCount / checks.length) * 100) : 0;
+
+  useEffect(() => {
+    if (onScoreChange) {
+      onScoreChange(score);
+    }
+  }, [score, onScoreChange]);
 
   let scoreColor = 'var(--danger)';
   if (score >= 70) scoreColor = 'var(--success)';

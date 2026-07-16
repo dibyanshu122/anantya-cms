@@ -84,7 +84,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ 
         url: publicUrl,
         name: fileName,
-        size: Math.round(optimizedBuffer.length / 1024) + ' KB'
+        size: Math.round(finalBuffer.length / 1024) + ' KB'
       });
       
     } catch (processError) {

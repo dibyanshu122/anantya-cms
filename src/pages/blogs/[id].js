@@ -53,6 +53,7 @@ export default function EditBlog() {
   const [seoDescription, setSeoDescription] = useState('');
   const [focusKeyword, setFocusKeyword] = useState('');
   const [canonicalUrl, setCanonicalUrl] = useState('');
+  const [seoScore, setSeoScore] = useState(0);
 
   // Meta Info
   const [status, setStatus] = useState('draft');
@@ -171,7 +172,7 @@ export default function EditBlog() {
         seo_description: seoDescription || excerpt,
         focus_keyword: focusKeyword || null,
         canonical_url: canonicalUrl || null,
-        seo_score: 0,
+        seo_score: seoScore,
       };
       
       if (saveStatus === 'published' && status !== 'published') {
@@ -414,7 +415,7 @@ export default function EditBlog() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <SeoScoreWidget title={seoTitle || title} description={seoDescription || excerpt} keyword={focusKeyword} content={content} />
+          <SeoScoreWidget title={seoTitle || title} description={seoDescription || excerpt} keyword={focusKeyword} content={content} onScoreChange={setSeoScore} />
           
           <div className="cms-card">
             <h4 style={{ margin: '0 0 12px 0', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}><FiImage /> Featured Image</h4>
