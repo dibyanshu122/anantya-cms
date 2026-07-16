@@ -32,32 +32,43 @@ export default async function handler(req, res) {
       // Read the uploaded file
       const buffer = fs.readFileSync(file.filepath);
 
-      // Analyze and Process with Sharp (WebP Conversion + Compression)
-      const image = sharp(buffer);
-      const metadata = await image.metadata();
+      const isGif = file.mimetype === 'image/gif';
+      let finalBuffer = buffer;
+      let fileExt = 'webp';
+      let contentType = 'image/webp';
 
-      let pipeline = image;
+      if (isGif) {
+        // Bypass Sharp for GIFs to preserve animation perfectly
+        fileExt = 'gif';
+        contentType = 'image/gif';
+      } else {
+        // Analyze and Process with Sharp (WebP Conversion + Compression)
+        const image = sharp(buffer);
+        const metadata = await image.metadata();
 
-      // Resize if too large
-      if (metadata.width > 2500) {
-        pipeline = pipeline.resize(2500);
+        let pipeline = image;
+
+        // Resize if too large
+        if (metadata.width > 2500) {
+          pipeline = pipeline.resize(2500);
+        }
+
+        // Convert to WebP and compress
+        finalBuffer = await pipeline
+          .webp({ quality: 80 })
+          .toBuffer();
       }
-
-      // Convert to WebP and compress
-      const optimizedBuffer = await pipeline
-        .webp({ quality: 80 })
-        .toBuffer();
 
       // Upload to Supabase Storage
       const customName = fields.customName ? fields.customName[0] : null;
       const sanitizedCustom = customName ? customName.replace(/[^a-z0-9]/gi, '-').toLowerCase() : '';
       const baseName = sanitizedCustom || file.originalFilename.split('.')[0].replace(/[^a-z0-9]/gi, '-').toLowerCase();
-      const fileName = `${Date.now()}-${baseName}.webp`;
+      const fileName = `${Date.now()}-${baseName}.${fileExt}`;
       
       const { data, error } = await supabaseAdmin.storage
         .from('images')
-        .upload(`blog-images/${fileName}`, optimizedBuffer, {
-          contentType: 'image/webp',
+        .upload(`blog-images/${fileName}`, finalBuffer, {
+          contentType: contentType,
           upsert: false
         });
 

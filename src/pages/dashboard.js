@@ -269,10 +269,10 @@ export default function Dashboard() {
       <div className="dash-grid">
 
         {/* ---- LEFT COLUMN ---- */}
-        <div className="dash-col-main">
+        <div className="dash-col-main" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Recent blogs table */}
-          <div className="card" style={{ marginBottom: 20 }}>
+          <div className="dashboard-card">
             <div className="card-header">
               <span className="card-title">
                 <FiFileText style={{ marginRight: 8, color: 'var(--primary)' }} />
@@ -341,7 +341,7 @@ export default function Dashboard() {
           </div>
 
           {/* SEO Issues */}
-          <div className="card">
+          <div className="dashboard-card" style={{ flex: 1 }}>
             <div className="card-header">
               <span className="card-title">
                 <FiAlertCircle style={{ marginRight: 8, color: 'var(--danger)' }} />
@@ -418,20 +418,20 @@ export default function Dashboard() {
         </div>
 
         {/* ---- RIGHT COLUMN ---- */}
-        <div className="dash-col-aside">
+        <div className="dash-col-aside" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Quick Actions */}
-          <div className="card" style={{ marginBottom: 20 }}>
+          <div className="dashboard-card">
             <div className="card-header" style={{ marginBottom: 14 }}>
               <span className="card-title">Quick Actions</span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <Link href="/blogs/new" className="quick-action">
                 <div className="quick-action-icon" style={{ background: 'rgba(1,142,158,0.15)', color: 'var(--primary)' }}>
                   <FiPlusCircle size={17} />
                 </div>
                 <span>New Blog Post</span>
-                <FiArrowRight size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                <FiArrowRight size={14} className="action-arrow" />
               </Link>
 
               <Link href="/redirects/new" className="quick-action">
@@ -439,7 +439,7 @@ export default function Dashboard() {
                   <FiLink size={17} />
                 </div>
                 <span>Add Redirect</span>
-                <FiArrowRight size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                <FiArrowRight size={14} className="action-arrow" />
               </Link>
 
               <Link href="/robots" className="quick-action">
@@ -447,7 +447,7 @@ export default function Dashboard() {
                   <FiGlobe size={17} />
                 </div>
                 <span>Edit Robots.txt</span>
-                <FiArrowRight size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                <FiArrowRight size={14} className="action-arrow" />
               </Link>
 
               <button className="quick-action" onClick={handleGenerateSitemap} disabled={generateLoading}>
@@ -457,13 +457,13 @@ export default function Dashboard() {
                     : <FiMap size={17} />}
                 </div>
                 <span>{generateLoading ? 'Generating…' : 'Generate Sitemap'}</span>
-                {!generateLoading && <FiArrowRight size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />}
+                {!generateLoading && <FiArrowRight size={14} className="action-arrow" />}
               </button>
             </div>
           </div>
 
           {/* Content overview donut-like summary */}
-          <div className="card" style={{ marginBottom: 20 }}>
+          <div className="dashboard-card">
             <div className="card-header" style={{ marginBottom: 14 }}>
               <span className="card-title">Content Health</span>
             </div>
@@ -490,7 +490,7 @@ export default function Dashboard() {
           </div>
 
           {/* Activity */}
-          <div className="card">
+          <div className="dashboard-card">
             <div className="card-header" style={{ marginBottom: 14 }}>
               <span className="card-title">
                 <FiClock style={{ marginRight: 8, color: 'var(--primary)' }} />
@@ -565,12 +565,36 @@ export default function Dashboard() {
           display: grid;
           grid-template-columns: 1fr 300px;
           gap: 20px;
-          align-items: start;
+          align-items: stretch;
         }
         @media (max-width: 1100px) {
           .dash-grid {
             grid-template-columns: 1fr;
           }
+        }
+        
+        /* Dashboard Card */
+        .dashboard-card {
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          padding: 24px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+          display: flex;
+          flex-direction: column;
+        }
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        .card-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--text-primary);
+          display: flex;
+          align-items: center;
         }
 
         /* Activity */
@@ -657,32 +681,44 @@ export default function Dashboard() {
         .quick-action {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
           padding: 12px 16px;
-          background: var(--bg-base);
+          background: var(--bg-card);
           border: 1px solid var(--border);
           border-radius: var(--radius-md);
           text-decoration: none;
           color: var(--text-primary);
           font-size: 14px;
           font-weight: 500;
-          transition: all var(--transition);
+          transition: all 0.2s ease;
           width: 100%;
           cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+          text-align: left;
         }
         .quick-action:hover {
-          background: var(--bg-secondary);
+          background: var(--bg-muted);
           border-color: var(--border-light);
-          transform: translateY(-1px);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.05);
         }
         .quick-action-icon {
-          width: 32px;
-          height: 32px;
-          border-radius: 8px;
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+        }
+        .action-arrow {
+          margin-left: auto;
+          opacity: 0.3;
+          transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .quick-action:hover .action-arrow {
+          opacity: 1;
+          transform: translateX(4px);
         }
       `}</style>
     </AdminLayout>

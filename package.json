@@ -38,6 +38,7 @@
     "react-hook-form": "^7.57.0",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
+    "recharts": "^3.9.2",
     "sharp": "^0.35.3",
     "slugify": "^1.6.6",
     "uuid": "^11.1.0"
