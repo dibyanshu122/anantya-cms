@@ -44,7 +44,17 @@ export default async function handler(req, res) {
       }
     });
 
-    let resultText = response.text.replace(/^```json\s*|```$/g, '').trim();
+    let resultText = response.text;
+    const jsonMatch = resultText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (jsonMatch) {
+      resultText = jsonMatch[1];
+    } else {
+      const start = resultText.indexOf('{');
+      const end = resultText.lastIndexOf('}');
+      if (start !== -1 && end !== -1) {
+        resultText = resultText.substring(start, end + 1);
+      }
+    }
     const resultJson = JSON.parse(resultText);
 
     return res.status(200).json(resultJson);
