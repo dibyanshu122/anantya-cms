@@ -380,7 +380,7 @@ export default function BlogEditor({ blogId }) {
 
                 {/* Editor Content */}
                 <div className={styles.tiptapWrap}>
-                  <EditorContent editor={editor} className={styles.tiptapEditor} />
+                  <EditorContent editor={editor} className={`${styles.tiptapEditor} tiptap-content-wrap`} />
                 </div>
 
                 {/* Word Count */}
