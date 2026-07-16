@@ -26,7 +26,7 @@ function StatCard({ icon: Icon, label, value, color }) {
   );
 }
 
-const EMPTY = { source_url: '', destination_url: '', type: '301', notes: '', is_active: true };
+const EMPTY = { source_url: '', destination_url: '', redirect_type: '301', notes: '', is_active: true };
 
 function RedirectModal({ redirect, onClose, onSave }) {
   const [form, setForm] = useState(redirect || EMPTY);
@@ -77,7 +77,7 @@ function RedirectModal({ redirect, onClose, onSave }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Redirect Type</label>
-              <select value={form.type} onChange={e => set('type', e.target.value)}
+              <select value={form.redirect_type} onChange={e => set('redirect_type', e.target.value)}
                 style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}>
                 <option value="301">301 – Permanent</option>
                 <option value="302">302 – Temporary</option>
@@ -118,10 +118,10 @@ function CsvModal({ onClose, onImport }) {
   const [csv, setCsv] = useState('');
   const handleImport = () => {
     const rows = csv.trim().split('\n').map(line => {
-      const [source_url, destination_url, type = '301'] = line.split(',').map(s => s.trim());
-      return { source_url, destination_url, type, is_active: true, notes: 'CSV Import' };
+      const [source_url, destination_url, redirect_type = '301'] = line.split(',').map(s => s.trim());
+      return { source_url, destination_url, redirect_type, is_active: true, notes: 'CSV Import' };
     }).filter(r => r.source_url && r.destination_url);
-    if (!rows.length) return alert('No valid rows found. Format: source,destination,type');
+    if (!rows.length) return alert('No valid rows found. Format: source,destination,redirect_type');
     onImport(rows);
   };
   return (
@@ -132,7 +132,7 @@ function CsvModal({ onClose, onImport }) {
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><FiX size={18} /></button>
         </div>
         <div style={{ padding: 24 }}>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>Format: <code style={{ color: '#018E9E' }}>source_url,destination_url,type</code> (one per line)</p>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>Format: <code style={{ color: '#018E9E' }}>source_url,destination_url,redirect_type</code> (one per line)</p>
           <textarea
             value={csv} onChange={e => setCsv(e.target.value)}
             placeholder={`/old-page,/new-page,301\n/another,https://new.com,302`}
@@ -199,8 +199,8 @@ export default function RedirectsIndex() {
 
   const stats = {
     total: redirects.length,
-    r301: redirects.filter(r => r.type === '301').length,
-    r302: redirects.filter(r => r.type === '302').length,
+    r301: redirects.filter(r => r.redirect_type === '301').length,
+    r302: redirects.filter(r => r.redirect_type === '302').length,
     active: redirects.filter(r => r.is_active).length,
   };
 
@@ -306,8 +306,8 @@ export default function RedirectsIndex() {
                     <td style={{ padding: '13px 16px', fontFamily: 'monospace', fontSize: 12, color: '#018E9E', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.source_url}</td>
                     <td style={{ padding: '13px 16px', fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.destination_url}</td>
                     <td style={{ padding: '13px 16px' }}>
-                      <span style={{ padding: '3px 10px', borderRadius: 5, fontSize: 11, fontWeight: 700, background: `${TYPE_COLORS[r.type] || '#888'}18`, color: TYPE_COLORS[r.type] || '#888' }}>
-                        {r.type}
+                      <span style={{ padding: '3px 10px', borderRadius: 5, fontSize: 11, fontWeight: 700, background: `${TYPE_COLORS[r.redirect_type] || '#888'}18`, color: TYPE_COLORS[r.redirect_type] || '#888' }}>
+                        {r.redirect_type}
                       </span>
                     </td>
                     <td style={{ padding: '13px 16px', color: 'var(--text-muted)', fontSize: 12 }}>{r.hit_count ?? 0}</td>
