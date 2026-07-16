@@ -80,14 +80,25 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
 
-  /* Theme management */
+  /* Theme and Sidebar State management */
   useEffect(() => {
     const savedTheme = localStorage.getItem('anantya-theme');
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
     }
+    
+    const savedCollapse = localStorage.getItem('anantya-sidebar-collapsed');
+    if (savedCollapse === 'true') {
+      setIsCollapsed(true);
+    }
   }, []);
+
+  const toggleCollapse = () => {
+    const newVal = !isCollapsed;
+    setIsCollapsed(newVal);
+    localStorage.setItem('anantya-sidebar-collapsed', newVal.toString());
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -453,7 +464,7 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
             </button>
 
             <button 
-              onClick={() => setIsCollapsed(!isCollapsed)} 
+              onClick={toggleCollapse} 
               style={{ 
                 background: 'transparent', 
                 border: 'none', 
