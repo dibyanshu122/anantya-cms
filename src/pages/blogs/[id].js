@@ -453,7 +453,19 @@ export default function EditBlog() {
           </div>
           
           <div style={{ marginTop: 24 }}>
-            <AIAssistantPanel content={content} onApplySuggestion={(suggestion) => setContent(prev => prev + '\n' + suggestion)} />
+            <AIAssistantPanel 
+              content={content}
+              focusKeyword={focusKeyword}
+              onApplyMeta={(meta) => {
+                setSeoTitle(meta.title);
+                setSeoDescription(meta.description);
+                toast.success('Meta tags applied successfully!');
+              }}
+              onApplyKeywords={(kws) => {
+                navigator.clipboard.writeText(kws.join(', '));
+                toast.success('Keywords copied to clipboard!');
+              }}
+            />
           </div>
         </div>
       </div>
