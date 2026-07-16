@@ -19,7 +19,7 @@ export default function SeoScoreWidget({ title = '', description = '', keyword =
   let internalLinks = 0;
   let externalLinks = 0;
   anchorTags.forEach(tag => {
-    if (tag.includes('href="/"') || tag.includes("href='/'") || tag.match(/href=["']\/[^"']*["']/)) {
+    if (tag.includes('href="/"') || tag.includes("href='/'") || tag.match(/href=["']\/[^"']*["']/) || tag.match(/href=["']https?:\/\/(www\.)?anantya\.ai/i)) {
       internalLinks++;
     } else if (tag.includes('href="http') || tag.includes("href='http")) {
       externalLinks++;

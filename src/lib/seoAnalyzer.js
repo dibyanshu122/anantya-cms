@@ -160,8 +160,8 @@ export function analyzeSeo(data) {
       score += 3;
     }
 
-    // Internal links
-    const internalLinks = (content.match(/href="\/[^"]*"/gi) || []).length;
+    // Internal links (starts with / OR contains anantya.ai)
+    const internalLinks = (content.match(/href="(\/|https?:\/\/(www\.)?anantya\.ai)[^"]*"/gi) || []).length;
     if (internalLinks === 0) {
       issues.push({ type: 'warning', message: 'No internal links found' });
       checks.push({ label: 'Internal Links', pass: false });
