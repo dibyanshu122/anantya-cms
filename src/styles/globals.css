@@ -1598,6 +1598,14 @@ ul, ol {
   background: rgba(0, 0, 0, 0.03);
 }
 
+[data-theme="light"] .badge-published { color: #166534; border-color: rgba(22, 101, 52, 0.3); }
+[data-theme="light"] .badge-scheduled { color: #9A3412; border-color: rgba(154, 52, 18, 0.3); }
+[data-theme="light"] .badge-archived { color: #991B1B; border-color: rgba(153, 27, 27, 0.3); }
+[data-theme="light"] .badge-info { color: #1E3A8A; border-color: rgba(30, 58, 138, 0.3); }
+[data-theme="light"] .badge-primary { color: #015f6b; border-color: rgba(1, 95, 107, 0.3); }
+[data-theme="light"] .badge-draft { color: #334155; border-color: rgba(51, 65, 85, 0.3); }
+
+
 /* ============================================================
    TipTap Editor
    ============================================================ */
