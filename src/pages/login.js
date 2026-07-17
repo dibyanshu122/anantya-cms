@@ -70,15 +70,16 @@ export default function LoginPage() {
         }
 
         .login-card {
-          background: var(--card);
-          border: 1px solid var(--border);
+          background: #0f172a;
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 20px;
           padding: 48px 44px;
           width: 100%;
           max-width: 420px;
           position: relative;
           z-index: 1;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(1, 142, 158, 0.08);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(1, 142, 158, 0.2);
+          color: #f1f5f9;
         }
 
         .login-logo-wrap {
@@ -281,11 +282,8 @@ export default function LoginPage() {
         <div className="login-bg-glow" />
         <div className="login-card">
           <div className="login-logo-wrap">
-            <div className="login-logo-brand">
-              <div className="login-logo-icon">A</div>
-              <div className="login-logo-text">
-                Anantya<span>.ai</span>
-              </div>
+            <div className="login-logo-brand" style={{ justifyContent: 'center' }}>
+              <img src="/custom-logo.webp" alt="Anantya.ai Logo" style={{ width: '220px', height: 'auto' }} />
             </div>
             <div>
               <span className="login-badge">CMS Admin</span>

@@ -360,21 +360,18 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
         <aside className={`cms-sidebar${sidebarOpen ? ' open' : ''}`}>
           {/* Logo */}
           <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {!isCollapsed ? (
-              <div className="sidebar-logo-inner" style={{ width: '100%' }}>
-                <div className="sidebar-logo-icon">A</div>
-                <div className="sidebar-logo-text">
-                  <span className="sidebar-logo-name">
-                    Anantya<span>.ai</span>
-                  </span>
-                  <span className="sidebar-logo-badge">CMS</span>
+              {!isCollapsed ? (
+                <div className="sidebar-logo-inner" style={{ width: '100%', justifyContent: 'space-between' }}>
+                  <img src="/custom-logo.webp" alt="Anantya.ai Logo" style={{ display: 'block', objectFit: 'contain', flexShrink: 0, width: '175px', height: 'auto', marginRight: '5px' }} />
+                  <div className="sidebar-logo-text">
+                    <span className="sidebar-logo-badge">CMS</span>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="sidebar-logo-inner">
-                <div className="sidebar-logo-icon" style={{ margin: 0 }}>A</div>
-              </div>
-            )}
+              ) : (
+                <div className="sidebar-logo-inner">
+                  <img src="/custom-logo.webp" alt="Anantya.ai Logo" style={{ objectFit: 'contain', flexShrink: 0, margin: 0, width: '60px', height: 'auto' }} />
+                </div>
+              )}
           </div>
 
           {/* Navigation */}
