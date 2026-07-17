@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { triggerBuild } from '../../lib/triggerBuild';
 import { FiSave, FiPlus, FiTrash2, FiEdit2, FiCheck, FiX, FiImage, FiMoreVertical } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import MediaSelector from '../../components/common/MediaSelector';
@@ -51,6 +52,7 @@ export default function AnnouncementsManager() {
       toast.success('Announcement saved!');
       setShowModal(false);
       fetchAnnouncements();
+      triggerBuild();
     }
   };
 
@@ -58,6 +60,7 @@ export default function AnnouncementsManager() {
     if (!window.confirm('Delete this announcement?')) return;
     await supabase.from('announcements').delete().eq('id', id);
     fetchAnnouncements();
+    triggerBuild();
   };
 
   const toggleActive = async (id, currentStatus) => {
@@ -67,6 +70,7 @@ export default function AnnouncementsManager() {
     }
     await supabase.from('announcements').update({ is_active: !currentStatus }).eq('id', id);
     fetchAnnouncements();
+    triggerBuild();
   };
 
   const openModal = (item = null) => {

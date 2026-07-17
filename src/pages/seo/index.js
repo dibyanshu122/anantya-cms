@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { triggerBuild } from '../../lib/triggerBuild';
 import {
   FiSearch, FiEdit2, FiCheckCircle, FiAlertCircle, FiXCircle,
   FiRefreshCw, FiFilter, FiExternalLink, FiTrendingUp,
@@ -94,7 +95,7 @@ export default function SeoIndex() {
       .update({ ...editValues, updated_at: new Date().toISOString() })
       .eq('id', id);
     if (error) showToast(error.message, 'error');
-    else { showToast('SEO updated successfully'); fetchPages(); cancelEdit(); }
+    else { showToast('SEO updated successfully'); fetchPages(); cancelEdit(); triggerBuild(); }
     setSaving(false);
   };
 

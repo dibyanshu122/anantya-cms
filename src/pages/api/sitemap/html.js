@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   try {
     const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.anantya.ai';
 
-    const { data: seoPages } = await supabase.from('seo_pages').select('slug, seo_title');
+    const { data: seoPages } = await supabase.from('seo_pages').select('page_path, seo_title');
     const { data: blogs } = await supabase.from('blogs').select('slug, title').eq('status', 'published');
 
     const urls = [];
@@ -16,8 +16,8 @@ export default async function handler(req, res) {
     if (seoPages) {
       seoPages.forEach(page => {
         urls.push({
-          url: `${SITE_URL}${page.slug === '/' ? '' : page.slug}`,
-          title: page.seo_title || page.slug
+          url: `${SITE_URL}${page.page_path === '/' ? '' : page.page_path}`,
+          title: page.seo_title || page.page_path
         });
       });
     }
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         <div class="section">
           <h2>Pages</h2>
           <ul>
-            ${seoPages?.map(p => `<li><a href="${SITE_URL}${p.slug === '/' ? '' : p.slug}">${p.seo_title || p.slug}</a></li>`).join('') || ''}
+            ${seoPages?.map(p => `<li><a href="${SITE_URL}${p.page_path === '/' ? '' : p.page_path}">${p.seo_title || p.page_path}</a></li>`).join('') || ''}
           </ul>
         </div>
         

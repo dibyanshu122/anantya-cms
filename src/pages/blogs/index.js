@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { triggerBuild } from '../../lib/triggerBuild';
 
 /* ================================================================
    CONSTANTS
@@ -391,6 +392,7 @@ export default function BlogsIndex() {
       toast.success('Blog post deleted');
       setDeleteTarget(null);
       fetchBlogs();
+      triggerBuild();
     } catch (e) {
       console.error(e);
       toast.error('Failed to delete post');
@@ -410,6 +412,7 @@ export default function BlogsIndex() {
       setBulkDeleteOpen(false);
       setSelected(new Set());
       fetchBlogs();
+      triggerBuild();
     } catch (e) {
       console.error(e);
       toast.error('Bulk delete failed');
@@ -430,6 +433,7 @@ export default function BlogsIndex() {
       toast.success(`${ids.length} post${ids.length > 1 ? 's' : ''} published`);
       setSelected(new Set());
       fetchBlogs();
+      triggerBuild();
     } catch (e) {
       toast.error('Bulk publish failed');
     }
@@ -447,6 +451,7 @@ export default function BlogsIndex() {
       toast.success(`Moved ${ids.length} post${ids.length > 1 ? 's' : ''} to draft`);
       setSelected(new Set());
       fetchBlogs();
+      triggerBuild();
     } catch (e) {
       toast.error('Operation failed');
     }

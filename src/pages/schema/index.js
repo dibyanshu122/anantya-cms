@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { triggerBuild } from '../../lib/triggerBuild';
 import { FiPlus, FiSearch, FiCode, FiTrash2, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
@@ -111,6 +112,7 @@ export default function SchemaManager() {
       }
       setShowModal(false);
       fetchSchemas();
+      triggerBuild();
     } catch (error) {
       toast.error(error.message);
     }
@@ -123,6 +125,7 @@ export default function SchemaManager() {
     else {
       toast.success('Schema deleted');
       fetchSchemas();
+      triggerBuild();
     }
   };
 

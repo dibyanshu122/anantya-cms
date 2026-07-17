@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import AdminLayout from '../../components/layout/AdminLayout';
 import AIAssistantPanel from '../../components/seo/AIAssistantPanel';
 import { supabase } from '../../lib/supabase';
+import { triggerBuild } from '../../lib/triggerBuild';
 import {
   FiSave, FiArrowLeft, FiEye, FiImage, FiInfo, FiGlobe,
   FiTwitter, FiFacebook, FiCheckCircle, FiAlertCircle,
@@ -106,7 +107,7 @@ export default function SeoEditor() {
   const [form, setForm] = useState({
     page_name: '', page_path: '', seo_title: '', seo_description: '',
     focus_keyword: '', canonical_url: '', custom_slug: '',
-    robots_index: 'index', robots_follow: 'follow',
+    robots_index: true, robots_follow: 'follow',
     og_title: '', og_description: '', og_image: '',
     twitter_image: '', breadcrumb_title: '', schema_type: 'None',
     schema_json: ''
@@ -135,7 +136,11 @@ export default function SeoEditor() {
   const handleSave = async () => {
     if (!form.seo_title.trim()) return showToast('SEO Title is required.', 'error');
     setSaving(true);
-    const payload = { ...form, updated_at: new Date().toISOString() };
+    const payload = { 
+      ...form, 
+      robots_index: form.robots_index === 'index' || form.robots_index === true,
+      updated_at: new Date().toISOString() 
+    };
     let error;
     if (isNew) {
       const result = await supabase.from('seo_pages').insert([payload]);
@@ -145,7 +150,7 @@ export default function SeoEditor() {
       error = result.error;
     }
     if (error) showToast(error.message, 'error');
-    else { showToast('SEO page saved successfully!'); if (isNew) router.push('/seo'); }
+    else { showToast('SEO page saved successfully!'); triggerBuild(); if (isNew) router.push('/seo'); }
     setSaving(false);
   };
 
@@ -272,7 +277,10 @@ export default function SeoEditor() {
           <SectionCard title="Robots & Indexing">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
               <FormRow label="Index Directive">
-                <select value={form.robots_index} onChange={e => set('robots_index', e.target.value)} style={selectStyle}>
+                <select 
+                  value={form.robots_index === true || form.robots_index === 'index' ? 'index' : 'noindex'} 
+                  onChange={e => set('robots_index', e.target.value === 'index')} 
+                  style={selectStyle}>
                   {ROBOTS_INDEX.map(v => <option key={v} value={v}>{v}</option>)}
                 </select>
               </FormRow>
@@ -291,7 +299,7 @@ export default function SeoEditor() {
               padding: '10px 14px', background: 'var(--bg-base)', border: '1px solid var(--border)',
               borderRadius: 8, fontFamily: 'monospace', fontSize: 12, color: '#018E9E', marginBottom: 20
             }}>
-              Meta Robots: <strong>{form.robots_index}, {form.robots_follow}</strong>
+              Meta Robots: <strong>{form.robots_index === true || form.robots_index === 'index' ? 'index' : 'noindex'}, {form.robots_follow}</strong>
             </div>
             
             <SchemaBuilder 

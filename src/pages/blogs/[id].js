@@ -7,6 +7,7 @@ import SeoScoreWidget from '../../components/seo/SeoScoreWidget';
 import AIAssistantPanel from '../../components/seo/AIAssistantPanel';
 import { FiSave, FiCheck, FiArrowLeft, FiImage } from 'react-icons/fi';
 import { supabase } from '../../lib/supabase';
+import { triggerBuild } from '../../lib/triggerBuild';
 import slugify from 'slugify';
 import toast from 'react-hot-toast';
 import MediaSelector from '../../components/common/MediaSelector';
@@ -222,6 +223,7 @@ export default function EditBlog() {
       }
 
       toast.success(saveStatus === 'published' ? 'Blog published!' : 'Draft saved!');
+      triggerBuild();
       router.push('/blogs');
     } catch (e) {
       console.error(e);

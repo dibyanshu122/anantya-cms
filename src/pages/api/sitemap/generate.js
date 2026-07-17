@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     // 1. Fetch static SEO pages
     const { data: seoPages, error: seoError } = await supabaseAdmin
       .from('seo_pages')
-      .select('path, updated_at, robots_index')
+      .select('page_path, updated_at, robots_index')
       .eq('robots_index', true);
       
     if (seoError) throw seoError;
@@ -33,8 +33,8 @@ export default async function handler(req, res) {
     // Add static pages
     seoPages.forEach(page => {
       // Avoid doubling slashes
-      const loc = page.path === '/' ? baseUrl : `${baseUrl}${page.path.startsWith('/') ? page.path : '/' + page.path}`;
-      const priority = page.path === '/' ? '1.0' : '0.8';
+      const loc = page.page_path === '/' ? baseUrl : `${baseUrl}${page.page_path.startsWith('/') ? page.page_path : '/' + page.page_path}`;
+      const priority = page.page_path === '/' ? '1.0' : '0.8';
       
       xml += `  <url>\n`;
       xml += `    <loc>${loc}</loc>\n`;

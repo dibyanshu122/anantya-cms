@@ -24,7 +24,7 @@ export default function RobotsTxtEditor() {
     const { data, error } = await supabase
       .from('robots_txt')
       .select('*')
-      .order('updated_at', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) {
       toast.error('Failed to load robots.txt');
@@ -47,7 +47,7 @@ export default function RobotsTxtEditor() {
       .from('robots_txt')
       .insert([{ 
         content,
-        updated_at: new Date().toISOString()
+        created_at: new Date().toISOString()
       }]);
 
     if (error) {
@@ -152,7 +152,7 @@ export default function RobotsTxtEditor() {
                     {i === 0 ? <FiCheck color="var(--success)" style={{ marginTop: '3px' }}/> : <div style={{width: 14}}></div>}
                     <div>
                       <div style={{ fontSize: '0.9rem', color: i === 0 ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                        {new Date(h.updated_at).toLocaleString()}
+                        {new Date(h.created_at || h.updated_at).toLocaleString()}
                       </div>
                       {i === 0 && <span style={{ fontSize: '0.75rem', background: 'rgba(34, 197, 94, 0.1)', color: 'var(--success)', padding: '2px 6px', borderRadius: '4px' }}>Current</span>}
                     </div>

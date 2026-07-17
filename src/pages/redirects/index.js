@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import { triggerBuild } from '../../lib/triggerBuild';
 import {
   FiPlus, FiSearch, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight,
   FiLink, FiArrowRight, FiUpload, FiFilter, FiX, FiCheckCircle,
@@ -209,11 +210,11 @@ export default function RedirectsIndex() {
     if (editItem) {
       const { error } = await supabase.from('redirects').update(payload).eq('id', editItem.id);
       if (error) showToast(error.message, 'error');
-      else showToast('Redirect updated.');
+      else { showToast('Redirect updated.'); triggerBuild(); }
     } else {
       const { error } = await supabase.from('redirects').insert([{ ...payload, hit_count: 0, created_at: new Date().toISOString() }]);
       if (error) showToast(error.message, 'error');
-      else showToast('Redirect added.');
+      else { showToast('Redirect added.'); triggerBuild(); }
     }
     setShowModal(false);
     setEditItem(null);
@@ -223,21 +224,21 @@ export default function RedirectsIndex() {
   const toggleActive = async (r) => {
     const { error } = await supabase.from('redirects').update({ is_active: !r.is_active }).eq('id', r.id);
     if (error) showToast(error.message, 'error');
-    else fetchRedirects();
+    else { fetchRedirects(); triggerBuild(); }
   };
 
   const handleDelete = async (id) => {
     setDeleting(id);
     const { error } = await supabase.from('redirects').delete().eq('id', id);
     if (error) showToast(error.message, 'error');
-    else { showToast('Redirect deleted.'); fetchRedirects(); }
+    else { showToast('Redirect deleted.'); fetchRedirects(); triggerBuild(); }
     setDeleting(null);
   };
 
   const handleCsvImport = async (rows) => {
     const { error } = await supabase.from('redirects').insert(rows.map(r => ({ ...r, hit_count: 0, created_at: new Date().toISOString() })));
     if (error) showToast(error.message, 'error');
-    else { showToast(`Imported ${rows.length} redirects.`); setShowCsv(false); fetchRedirects(); }
+    else { showToast(`Imported ${rows.length} redirects.`); setShowCsv(false); fetchRedirects(); triggerBuild(); }
   };
 
   return (
