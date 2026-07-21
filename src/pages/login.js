@@ -176,11 +176,11 @@ export default function LoginPage() {
         .login-input {
           width: 100%;
           background: rgba(15, 23, 42, 0.8);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid rgba(255, 255, 255, 0.1);
           border-radius: 10px;
           padding: 13px 14px 13px 44px;
           font-size: 14px;
-          color: var(--text);
+          color: #ffffff;
           outline: none;
           transition: border-color 0.2s, box-shadow 0.2s;
           font-family: inherit;
