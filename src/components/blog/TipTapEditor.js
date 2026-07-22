@@ -192,6 +192,22 @@ const MenuBar = ({ editor }) => {
       </button>
 
       <div className="toolbar-divider" />
+
+      {/* Custom Components */}
+      <button
+        onClick={() => {
+          editor.commands.insertContent('<p><strong>[LEAD_FORM]</strong></p>');
+          toast.success('Lead Form shortcode inserted!');
+        }}
+        className="toolbar-btn"
+        title="Insert Lead Form"
+        type="button"
+        style={{ padding: '0 10px', fontSize: 13, width: 'auto', fontWeight: 600, color: '#f59e0b' }}
+      >
+        📝 Lead Form
+      </button>
+
+      <div className="toolbar-divider" />
       
       <button
         onClick={generateTOC}
