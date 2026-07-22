@@ -56,6 +56,11 @@ export default function EditBlog() {
   const [canonicalUrl, setCanonicalUrl] = useState('');
   const [seoScore, setSeoScore] = useState(0);
 
+  // OG Tags
+  const [ogTitle, setOgTitle] = useState('');
+  const [ogDescription, setOgDescription] = useState('');
+  const [ogImage, setOgImage] = useState('');
+
   // Meta Info
   const [status, setStatus] = useState('draft');
 
@@ -112,6 +117,9 @@ export default function EditBlog() {
           setSeoDescription(data.seo_description || '');
           setFocusKeyword(data.focus_keyword || '');
           setCanonicalUrl(data.canonical_url || '');
+          setOgTitle(data.og_title || '');
+          setOgDescription(data.og_description || '');
+          setOgImage(data.og_image || '');
         }
       } catch (err) {
         console.error(err);
@@ -131,11 +139,12 @@ export default function EditBlog() {
     }
   };
 
-  const [showMediaSelector, setShowMediaSelector] = useState(false);
+  const [mediaTarget, setMediaTarget] = useState(null);
 
   const handleMediaSelect = (url) => {
-    setFeaturedImage(url);
-    setShowMediaSelector(false);
+    if (mediaTarget === 'featured') setFeaturedImage(url);
+    if (mediaTarget === 'og') setOgImage(url);
+    setMediaTarget(null);
   };
 
   const handleSave = async (saveStatus = status) => {
@@ -174,6 +183,9 @@ export default function EditBlog() {
         focus_keyword: focusKeyword || null,
         canonical_url: canonicalUrl || null,
         seo_score: seoScore,
+        og_title: ogTitle || null,
+        og_description: ogDescription || null,
+        og_image: ogImage || null,
       };
       
       if (saveStatus === 'published' && status !== 'published') {
@@ -414,6 +426,27 @@ export default function EditBlog() {
               </div>
             </div>
           </div>
+
+          <div className="cms-card">
+            <h4 style={{ margin: '0 0 16px 0', fontSize: 14 }}>Open Graph (Social Sharing)</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label className="form-label">OG Title (Optional)</label>
+                <input type="text" className="form-input" placeholder="Fallback to SEO Title if empty" value={ogTitle} onChange={e => setOgTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">OG Description (Optional)</label>
+                <textarea className="form-input" rows={2} placeholder="Fallback to Meta Description if empty" value={ogDescription} onChange={e => setOgDescription(e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">OG Image URL (Optional)</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input type="text" className="form-input" placeholder="Fallback to Featured Image if empty" value={ogImage} onChange={e => setOgImage(e.target.value)} />
+                  <button type="button" onClick={() => setMediaTarget('og')} className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>Browse</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -428,7 +461,7 @@ export default function EditBlog() {
               </div>
             ) : (
               <button 
-                onClick={() => setShowMediaSelector(true)}
+                onClick={() => setMediaTarget('featured')}
                 className="btn-secondary"
                 style={{ width: '100%', padding: '30px 10px', borderStyle: 'dashed', background: 'rgba(1,142,158,0.05)', color: 'var(--primary)' }}
               >
@@ -509,10 +542,10 @@ export default function EditBlog() {
         </div>
       )}
 
-      {showMediaSelector && (
+      {mediaTarget && (
         <MediaSelector 
           onSelect={handleMediaSelect} 
-          onClose={() => setShowMediaSelector(false)} 
+          onClose={() => setMediaTarget(null)} 
         />
       )}
     </AdminLayout>

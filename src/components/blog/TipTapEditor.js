@@ -6,6 +6,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Node, mergeAttributes } from '@tiptap/core';
 import {
   FiBold, FiItalic, FiUnderline, FiAlignLeft, FiAlignCenter,
   FiAlignRight, FiList, FiLink, FiImage, FiCode, FiList as FiTOC
@@ -13,6 +14,20 @@ import {
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import MediaSelector from '../common/MediaSelector';
+
+const Video = Node.create({
+  name: 'video',
+  group: 'block',
+  selectable: true,
+  draggable: true,
+  addAttributes() {
+    return { src: { default: null } }
+  },
+  parseHTML() { return [{ tag: 'video' }] },
+  renderHTML({ HTMLAttributes }) {
+    return ['video', mergeAttributes(HTMLAttributes, { controls: 'true', style: 'width: 100%; border-radius: 8px;' })]
+  },
+});
 
 const MenuBar = ({ editor }) => {
   const [showMediaSelector, setShowMediaSelector] = React.useState(false);
@@ -31,7 +46,7 @@ const MenuBar = ({ editor }) => {
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   };
 
-  const addImage = () => {
+  const addMedia = () => {
     setShowMediaSelector(true);
   };
 
@@ -156,9 +171,9 @@ const MenuBar = ({ editor }) => {
 
       {/* Media */}
       <button
-        onClick={addImage}
+        onClick={addMedia}
         className={btnClass(editor.isActive('image'))}
-        title="Insert Image"
+        title="Insert Media"
         type="button"
       >
         <FiImage size={15} />
@@ -166,10 +181,14 @@ const MenuBar = ({ editor }) => {
 
       {showMediaSelector && (
         <MediaSelector 
-          onSelect={(url) => {
-            const altText = window.prompt("Enter Image Alt Text (SEO):", "");
-            const titleText = window.prompt("Enter Image Title (Optional):", "");
-            editor.chain().focus().setImage({ src: url, alt: altText || '', title: titleText || '' }).run();
+          onSelect={(url, type) => {
+            if (type === 'video') {
+              editor.chain().focus().insertContent({ type: 'video', attrs: { src: url } }).run();
+            } else {
+              const altText = window.prompt("Enter Image Alt Text (SEO):", "");
+              const titleText = window.prompt("Enter Image Title (Optional):", "");
+              editor.chain().focus().setImage({ src: url, alt: altText || '', title: titleText || '' }).run();
+            }
             setShowMediaSelector(false);
           }} 
           onClose={() => setShowMediaSelector(false)} 
@@ -204,7 +223,7 @@ const MenuBar = ({ editor }) => {
         type="button"
         style={{ padding: '0 10px', fontSize: 13, width: 'auto', fontWeight: 600, color: '#f59e0b' }}
       >
-        📝 Lead Form
+        ?? Lead Form
       </button>
 
       <div className="toolbar-divider" />
@@ -230,6 +249,7 @@ export default function TipTapEditor({ content, onChange, placeholder = 'Write y
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({ openOnClick: false }),
       Image,
+      Video,
       Placeholder.configure({ placeholder }),
     ],
     content,
