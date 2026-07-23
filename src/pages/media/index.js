@@ -104,23 +104,37 @@ export default function MediaManager() {
   };
 
   const renameItem = async (oldName, isFolder) => {
-    if (isFolder) {
-      alert("Renaming folders is not supported yet.");
-      return;
-    }
-    const newName = prompt('Enter new name for the file:', oldName.split('.').slice(0, -1).join('.') || oldName);
+    const defaultName = isFolder ? oldName : (oldName.split('.').slice(0, -1).join('.') || oldName);
+    const newName = prompt(`Enter new name for the ${isFolder ? 'folder' : 'file'}:`, defaultName);
     if (!newName || newName === oldName) return;
 
-    const extension = oldName.split('.').pop();
     let sanitizedNewName = newName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
-    if (!sanitizedNewName.endsWith(`.${extension}`)) sanitizedNewName += `.${extension}`;
+
+    if (!isFolder) {
+      const extension = oldName.split('.').pop();
+      if (!sanitizedNewName.endsWith(`.${extension}`)) sanitizedNewName += `.${extension}`;
+    }
 
     const oldPath = currentPath ? `blog-images/${currentPath}/${oldName}` : `blog-images/${oldName}`;
     const newPath = currentPath ? `blog-images/${currentPath}/${sanitizedNewName}` : `blog-images/${sanitizedNewName}`;
 
     try {
-      const { error } = await supabase.storage.from('images').move(oldPath, newPath);
-      if (error) throw error;
+      if (isFolder) {
+        const { data } = await supabase.storage.from('images').list(oldPath);
+        if (data && data.length > 0) {
+          for (const file of data) {
+            await supabase.storage.from('images').move(`${oldPath}/${file.name}`, `${newPath}/${file.name}`);
+          }
+        } else {
+            // For completely empty folders that just have the placeholder
+            const emptyBlob = new Blob([''], { type: 'text/plain' });
+            await supabase.storage.from('images').upload(`${newPath}/.emptyFolderPlaceholder`, emptyBlob);
+            await supabase.storage.from('images').remove([`${oldPath}/.emptyFolderPlaceholder`]);
+        }
+      } else {
+        const { error } = await supabase.storage.from('images').move(oldPath, newPath);
+        if (error) throw error;
+      }
       
       await fetchItems();
     } catch (err) {
@@ -239,11 +253,9 @@ export default function MediaManager() {
                     {copiedId === item.id ? <><FiCheckCircle color="#22C55E" /> Copied</> : <><FiCopy /> Copy URL</>}
                   </button>
                 )}
-                {!item.isFolder && (
-                  <button onClick={() => renameItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, marginLeft: 'auto' }} title="Rename">
-                    <FiEdit2 size={14} />
-                  </button>
-                )}
+                <button onClick={() => renameItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, marginLeft: item.isFolder ? 'auto' : 'auto' }} title="Rename">
+                  <FiEdit2 size={14} />
+                </button>
                 <button onClick={() => deleteItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, marginLeft: item.isFolder ? 'auto' : 0 }} title="Delete">
                   <FiTrash2 size={14} />
                 </button>
