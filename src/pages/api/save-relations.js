@@ -21,11 +21,21 @@ export default async function handler(req, res) {
     await supabase.from('blog_categories').delete().eq('blog_id', blogId);
     await supabase.from('blog_tags').delete().eq('blog_id', blogId);
 
-    // 2. Insert new categories
+    // 2. Insert new categories and update blogs table string
     if (categoryIds && categoryIds.length > 0) {
       const catInserts = categoryIds.map(cid => ({ blog_id: blogId, category_id: cid }));
       const { error: catError } = await supabase.from('blog_categories').insert(catInserts);
       if (catError) throw catError;
+
+      // Fetch category names to update the 'categories' column in blogs table for the dashboard UI
+      const { data: catData } = await supabase.from('categories').select('name').in('id', categoryIds);
+      if (catData && catData.length > 0) {
+        const catNamesString = catData.map(c => c.name).join(', ');
+        await supabase.from('blogs').update({ categories: catNamesString }).eq('id', blogId);
+      }
+    } else {
+      // Clear the categories column if no categories are selected
+      await supabase.from('blogs').update({ categories: null }).eq('id', blogId);
     }
 
     // 3. Insert new tags
