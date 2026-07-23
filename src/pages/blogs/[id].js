@@ -395,19 +395,22 @@ export default function EditBlog() {
 
           <div className="cms-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
-              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="checkbox" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} /> Mark as Featured Post
-              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input type="checkbox" id="is_featured_checkbox" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} /> 
+                <label htmlFor="is_featured_checkbox" style={{ margin: 0, cursor: 'pointer' }}>Mark as Featured Post</label>
+              </div>
             </div>
             <div>
-              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="checkbox" checked={isSticky} onChange={e => setIsSticky(e.target.checked)} /> Stick to Top of Blog
-              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input type="checkbox" id="is_sticky_checkbox" checked={isSticky} onChange={e => setIsSticky(e.target.checked)} /> 
+                <label htmlFor="is_sticky_checkbox" style={{ margin: 0, cursor: 'pointer' }}>Stick to Top of Blog</label>
+              </div>
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
-              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="checkbox" checked={allowComments} onChange={e => setAllowComments(e.target.checked)} /> Enable Comments
-              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input type="checkbox" id="allow_comments_checkbox" checked={allowComments} onChange={e => setAllowComments(e.target.checked)} /> 
+                <label htmlFor="allow_comments_checkbox" style={{ margin: 0, cursor: 'pointer' }}>Enable Comments</label>
+              </div>
             </div>
             <div>
               <label className="form-label">Read Time (minutes)</label>

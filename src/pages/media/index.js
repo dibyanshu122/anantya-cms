@@ -9,6 +9,8 @@ export default function MediaManager() {
   const [uploading, setUploading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [currentPath, setCurrentPath] = useState('');
+  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [folderNameInput, setFolderNameInput] = useState('');
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -75,11 +77,11 @@ export default function MediaManager() {
     }
   };
 
-  const createFolder = async () => {
-    const folderName = prompt('Enter folder name:');
-    if (!folderName) return;
+  const handleCreateFolderSubmit = async (e) => {
+    e.preventDefault();
+    if (!folderNameInput.trim()) return;
     
-    const sanitized = folderName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    const sanitized = folderNameInput.trim().replace(/[^a-z0-9]/gi, '-').toLowerCase();
     const folderPath = currentPath ? `blog-images/${currentPath}/${sanitized}` : `blog-images/${sanitized}`;
     
     try {
@@ -89,6 +91,9 @@ export default function MediaManager() {
     } catch (err) {
       console.error('Error creating folder:', err);
       alert('Failed to create folder');
+    } finally {
+      setShowFolderModal(false);
+      setFolderNameInput('');
     }
   };
 
@@ -142,11 +147,8 @@ export default function MediaManager() {
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button 
-            onClick={createFolder}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 8, padding: '9px 20px', background: 'var(--bg-card)', border: '1px solid var(--border)',
-              color: 'var(--text-primary)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer'
-            }}
+            className="btn btn-primary"
+            onClick={() => setShowFolderModal(true)}
           >
             <FiFolderPlus size={16} /> New Folder
           </button>
@@ -219,6 +221,29 @@ export default function MediaManager() {
           </div>
         ))}
       </div>
+      )}
+
+      {/* Centered Folder Modal overlay */}
+      {showFolderModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', minWidth: '350px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>Create New Folder</h3>
+            <form onSubmit={handleCreateFolderSubmit}>
+              <input 
+                type="text" 
+                placeholder="Enter folder name"
+                style={{ width: '100%', marginBottom: '20px', padding: '8px' }}
+                value={folderNameInput}
+                onChange={(e) => setFolderNameInput(e.target.value)}
+                autoFocus
+              />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <button type="button" style={{ cursor: 'pointer' }} onClick={() => { setShowFolderModal(false); setFolderNameInput(''); }}>Cancel</button>
+                <button type="submit" style={{ cursor: 'pointer' }}>Create</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </AdminLayout>
   );
