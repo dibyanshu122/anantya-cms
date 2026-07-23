@@ -246,16 +246,15 @@ export default function EditBlog() {
       }
       
       if (savedBlogId) {
-        await supabase.from('blog_categories').delete().eq('blog_id', savedBlogId);
-        if (categoryIds.length > 0) {
-          const catInserts = categoryIds.map(cid => ({ blog_id: savedBlogId, category_id: cid }));
-          await supabase.from('blog_categories').insert(catInserts);
-        }
-
-        await supabase.from('blog_tags').delete().eq('blog_id', savedBlogId);
-        if (tagIds.length > 0) {
-          const tagInserts = tagIds.map(tid => ({ blog_id: savedBlogId, tag_id: tid }));
-          await supabase.from('blog_tags').insert(tagInserts);
+        const response = await fetch('/api/save-relations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ blogId: savedBlogId, categoryIds, tagIds })
+        });
+        
+        if (!response.ok) {
+          console.error("Failed to save categories or tags");
+          // Optionally handle the error in UI, but we proceed for now
         }
 
         await supabase.from('blog_faqs').delete().eq('blog_id', savedBlogId);
