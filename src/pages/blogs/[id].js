@@ -119,7 +119,7 @@ export default function EditBlog() {
           setCanonicalUrl(data.canonical_url || '');
           setOgTitle(data.og_title || '');
           setOgDescription(data.og_description || '');
-          setOgImage(data.og_image || '');
+          setOgImage(data.og_image_url || '');
         }
       } catch (err) {
         console.error(err);
@@ -159,8 +159,7 @@ export default function EditBlog() {
         scheduled_at: scheduledAt || null,
         estimated_read_time: estimatedReadTime || calcReadTime,
         seo_title: seoTitle || title, seo_description: seoDescription || excerpt,
-        focus_keyword: focusKeyword || null, canonical_url: canonicalUrl || null,
-        seo_score: seoScore, og_title: ogTitle || null, og_description: ogDescription || null, og_image: ogImage || null,
+        seo_score: seoScore, og_title: ogTitle || null, og_description: ogDescription || null, og_image_url: ogImage || null,
       };
       await supabase.from('blogs').update(payload).eq('id', id);
     } catch (e) {
@@ -223,7 +222,7 @@ export default function EditBlog() {
         seo_score: seoScore,
         og_title: ogTitle || null,
         og_description: ogDescription || null,
-        og_image: ogImage || null,
+        og_image_url: ogImage || null,
       };
       
       if (saveStatus === 'published' && status !== 'published') {
