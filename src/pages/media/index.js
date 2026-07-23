@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { FiUploadCloud, FiSearch, FiTrash2, FiCopy, FiCheckCircle, FiFolder, FiFolderPlus, FiChevronRight, FiVideo, FiImage } from 'react-icons/fi';
+import { FiUploadCloud, FiSearch, FiTrash2, FiCopy, FiCheckCircle, FiFolder, FiFolderPlus, FiChevronRight, FiVideo, FiImage, FiEdit2 } from 'react-icons/fi';
 import { supabase } from '../../lib/supabase';
 
 export default function MediaManager() {
@@ -101,6 +101,32 @@ export default function MediaManager() {
     navigator.clipboard.writeText(url);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const renameItem = async (oldName, isFolder) => {
+    if (isFolder) {
+      alert("Renaming folders is not supported yet.");
+      return;
+    }
+    const newName = prompt('Enter new name for the file:', oldName.split('.').slice(0, -1).join('.') || oldName);
+    if (!newName || newName === oldName) return;
+
+    const extension = oldName.split('.').pop();
+    let sanitizedNewName = newName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    if (!sanitizedNewName.endsWith(`.${extension}`)) sanitizedNewName += `.${extension}`;
+
+    const oldPath = currentPath ? `blog-images/${currentPath}/${oldName}` : `blog-images/${oldName}`;
+    const newPath = currentPath ? `blog-images/${currentPath}/${sanitizedNewName}` : `blog-images/${sanitizedNewName}`;
+
+    try {
+      const { error } = await supabase.storage.from('images').move(oldPath, newPath);
+      if (error) throw error;
+      
+      await fetchItems();
+    } catch (err) {
+      console.error('Error renaming item:', err);
+      alert('Failed to rename item: ' + err.message);
+    }
   };
 
   const deleteItem = async (name, isFolder) => {
@@ -213,7 +239,12 @@ export default function MediaManager() {
                     {copiedId === item.id ? <><FiCheckCircle color="#22C55E" /> Copied</> : <><FiCopy /> Copy URL</>}
                   </button>
                 )}
-                <button onClick={() => deleteItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, marginLeft: 'auto' }} title="Delete">
+                {!item.isFolder && (
+                  <button onClick={() => renameItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, marginLeft: 'auto' }} title="Rename">
+                    <FiEdit2 size={14} />
+                  </button>
+                )}
+                <button onClick={() => deleteItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, marginLeft: item.isFolder ? 'auto' : 0 }} title="Delete">
                   <FiTrash2 size={14} />
                 </button>
               </div>
