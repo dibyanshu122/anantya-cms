@@ -42,7 +42,7 @@ export default function EditBlog() {
   const [isSticky, setIsSticky] = useState(false);
   const [scheduledAt, setScheduledAt] = useState('');
   const [estimatedReadTime, setEstimatedReadTime] = useState(0);
-  const [allowComments, setAllowComments] = useState(true);
+  const [allowComments, setAllowComments] = useState(false);
   
   // Lists from DB
   const [authorsList, setAuthorsList] = useState([]);
@@ -97,7 +97,7 @@ export default function EditBlog() {
           setFeaturedImageTitle(data.featured_image_title || '');
           setFeaturedImageCaption(data.featured_image_caption || '');
           setAuthorId(data.author_id || '');
-          setAllowComments(data.allow_comments !== false);
+          setAllowComments(data.allow_comments === true);
           setEstimatedReadTime(data.estimated_read_time || 0);
           setCategoryIds(blogCatsRes.data?.map(c => c.category_id) || []);
           setTagIds(blogTagsRes.data?.map(t => t.tag_id) || []);
