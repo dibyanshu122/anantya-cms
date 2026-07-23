@@ -139,6 +139,44 @@ export default function EditBlog() {
     }
   };
 
+  const handleAutoSave = async () => {
+    if (!title || id === 'new' || status === 'published') return;
+    try {
+      const finalSlug = slug || slugify(title, { lower: true, strict: true });
+      const textContent = content.replace(/<[^>]+>/g, ' ');
+      const wordCount = textContent.trim().split(/\s+/).length;
+      const calcReadTime = Math.ceil(wordCount / 200);
+      
+      const payload = {
+        title, slug: finalSlug, content, excerpt, status,
+        featured_image_url: featuredImage || null,
+        featured_image_alt: featuredImageAlt || title,
+        featured_image_title: featuredImageTitle || null,
+        featured_image_caption: featuredImageCaption || null,
+        featured_image: featuredImage ? { url: featuredImage, alt: featuredImageAlt || title } : null,
+        author_id: authorId || null,
+        is_featured: isFeatured, is_sticky: isSticky, allow_comments: allowComments,
+        scheduled_at: scheduledAt || null,
+        estimated_read_time: estimatedReadTime || calcReadTime,
+        seo_title: seoTitle || title, seo_description: seoDescription || excerpt,
+        focus_keyword: focusKeyword || null, canonical_url: canonicalUrl || null,
+        seo_score: seoScore, og_title: ogTitle || null, og_description: ogDescription || null, og_image: ogImage || null,
+      };
+      await supabase.from('blogs').update(payload).eq('id', id);
+    } catch (e) {
+      console.error('Auto-save failed:', e);
+    }
+  };
+
+  useEffect(() => {
+    if (id === 'new' || !title || status === 'published') return;
+    const timeout = setTimeout(() => {
+      handleAutoSave();
+    }, 15000);
+    return () => clearTimeout(timeout);
+  }, [title, content, excerpt, status, featuredImage, seoTitle, seoDescription, focusKeyword]);
+
+
   const [mediaTarget, setMediaTarget] = useState(null);
 
   const handleMediaSelect = (url) => {
@@ -235,7 +273,11 @@ export default function EditBlog() {
       }
 
       toast.success(saveStatus === 'published' ? 'Blog published!' : 'Draft saved!');
-      triggerBuild();
+      
+      if (saveStatus === 'published') {
+        triggerBuild();
+      }
+      
       router.push('/blogs');
     } catch (e) {
       console.error(e);

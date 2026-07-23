@@ -1617,6 +1617,9 @@ ul, ol {
 }
 
 .tiptap-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1698,6 +1701,18 @@ ul, ol {
   color: var(--primary);
   text-decoration: underline;
   cursor: pointer;
+}
+
+.tiptap-content-wrap .ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-bottom: 1em;
+}
+
+.tiptap-content-wrap .ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 20px;
+  margin-bottom: 1em;
 }
 
 .tiptap-content-wrap .ProseMirror img {

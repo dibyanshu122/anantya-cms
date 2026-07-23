@@ -6,6 +6,8 @@ import TextAlign from '@tiptap/extension-text-align';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Color } from '@tiptap/extension-color';
+import TextStyle from '@tiptap/extension-text-style';
 import { Node, mergeAttributes } from '@tiptap/core';
 import {
   FiBold, FiItalic, FiUnderline, FiAlignLeft, FiAlignCenter,
@@ -126,6 +128,14 @@ const MenuBar = ({ editor }) => {
       >
         <FiUnderline size={15} />
       </button>
+
+      <input
+        type="color"
+        onInput={event => editor.chain().focus().setColor(event.target.value).run()}
+        value={editor.getAttributes('textStyle').color || '#000000'}
+        style={{ width: '30px', height: '30px', border: 'none', padding: '0', background: 'transparent', cursor: 'pointer', marginLeft: '4px' }}
+        title="Text Color"
+      />
 
       <div className="toolbar-divider" />
 
@@ -250,6 +260,8 @@ export default function TipTapEditor({ content, onChange, placeholder = 'Write y
       Link.configure({ openOnClick: false }),
       Image,
       Video,
+      TextStyle,
+      Color,
       Placeholder.configure({ placeholder }),
     ],
     content,
