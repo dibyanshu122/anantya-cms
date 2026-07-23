@@ -184,7 +184,12 @@ export default function EditBlog() {
     setMediaTarget(null);
   };
 
-  const handleSave = async (saveStatus = status) => {
+  const handleSave = async (initialSaveStatus = status) => {
+    let saveStatus = initialSaveStatus;
+    if (saveStatus === 'published' && scheduledAt && new Date(scheduledAt) > new Date()) {
+      saveStatus = 'scheduled';
+    }
+
     if (!title) {
       toast.error('Title is required');
       return;
@@ -271,10 +276,14 @@ export default function EditBlog() {
         }]);
       }
 
-      toast.success(saveStatus === 'published' ? 'Blog published!' : 'Draft saved!');
+      if (saveStatus === 'scheduled') {
+        toast.success('Post scheduled successfully!');
+      } else {
+        toast.success(saveStatus === 'published' ? 'Blog published!' : 'Draft saved!');
+      }
       
-      // Trigger build if we are publishing, OR if we are unpublishing (saving a live blog as draft)
-      if (saveStatus === 'published' || (status === 'published' && saveStatus === 'draft')) {
+      // Trigger build if we are publishing, OR if we are unpublishing (saving a live blog as draft or scheduled)
+      if (saveStatus === 'published' || (status === 'published' && (saveStatus === 'draft' || saveStatus === 'scheduled'))) {
         triggerBuild();
       }
       

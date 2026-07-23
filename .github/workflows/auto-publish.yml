@@ -1,0 +1,30 @@
+name: Auto Publish Scheduled Blogs
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Runs every 30 minutes
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install @supabase/supabase-js node-fetch@2
+
+      - name: Run Auto-Publish Script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_REPO: ${{ secrets.GH_REPO }}
+        run: node scripts/auto-publish.js
