@@ -274,7 +274,8 @@ export default function EditBlog() {
 
       toast.success(saveStatus === 'published' ? 'Blog published!' : 'Draft saved!');
       
-      if (saveStatus === 'published') {
+      // Trigger build if we are publishing, OR if we are unpublishing (saving a live blog as draft)
+      if (saveStatus === 'published' || (status === 'published' && saveStatus === 'draft')) {
         triggerBuild();
       }
       
