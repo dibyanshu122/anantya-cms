@@ -302,7 +302,7 @@ export default function BlogsIndex() {
         .from('blogs')
         .select(`
           id, title, slug, status, seo_score, published_at, created_at,
-          author, categories
+          authors(name), categories
         `, { count: 'exact' })
         .order(sortCol, { ascending: sortDir === 'asc' })
         .range(from, to);
@@ -696,7 +696,7 @@ export default function BlogsIndex() {
                           {/* Author */}
                           <td>
                               <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
-                                {blog.author || '—'}
+                                {blog.authors?.name || '—'}
                               </span>
                           </td>
 
