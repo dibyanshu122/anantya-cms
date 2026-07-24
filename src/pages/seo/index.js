@@ -219,13 +219,13 @@ export default function SeoIndex() {
                       borderBottom: '1px solid var(--border)',
                       background: isEditing ? 'rgba(1,142,158,0.04)' : 'transparent',
                     }}>
-                      <td style={{ padding: '13px 16px', fontWeight: 600, color: 'var(--text-primary)', maxWidth: 160 }}>
+                      <td style={{ padding: '13px 16px', fontWeight: 600, color: 'var(--text-primary)', maxWidth: 160, wordBreak: 'break-word' }}>
                         {row.page_name || '—'}
                       </td>
-                      <td style={{ padding: '13px 16px' }}>
+                      <td style={{ padding: '13px 16px', maxWidth: 200, wordBreak: 'break-word' }}>
                         <a href={`https://anantya.ai${row.page_path}`} target="_blank" rel="noopener noreferrer"
                           style={{ color: '#018E9E', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
-                          {row.page_path} <FiExternalLink size={11} />
+                          {row.page_path} <FiExternalLink size={11} style={{ flexShrink: 0 }} />
                         </a>
                       </td>
                       <td style={{ padding: '13px 16px', maxWidth: 180 }}>
