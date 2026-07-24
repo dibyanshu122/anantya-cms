@@ -273,6 +273,22 @@ export default function EditBlog() {
           content,
           title
         }]);
+
+        if (saveStatus === 'published') {
+          const seoPagePath = `/blog/${finalSlug}`;
+          const seoPageName = title;
+          
+          const { data: existingSeo } = await supabase.from('seo_pages').select('id').eq('page_path', seoPagePath).maybeSingle();
+          if (!existingSeo) {
+            await supabase.from('seo_pages').insert([{
+              page_name: seoPageName,
+              page_path: seoPagePath,
+              seo_title: seoTitle || title,
+              seo_description: seoDescription || excerpt,
+              schema_type: 'Article'
+            }]);
+          }
+        }
       }
 
       if (saveStatus === 'scheduled') {
