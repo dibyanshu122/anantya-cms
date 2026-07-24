@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FiImage, FiX, FiCheck, FiFolder, FiChevronRight, FiVideo } from 'react-icons/fi';
 import { supabase } from '../../lib/supabase';
 
@@ -6,8 +7,10 @@ export default function MediaSelector({ onSelect, onClose }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPath, setCurrentPath] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchItems();
   }, [currentPath]);
 
@@ -42,7 +45,9 @@ export default function MediaSelector({ onSelect, onClose }) {
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: '#1E293B', width: '90%', maxWidth: '800px', height: '80vh', borderRadius: '12px', display: 'flex', flexDirection: 'column', border: '1px solid #334155', overflow: 'hidden' }}>
         
@@ -87,7 +92,7 @@ export default function MediaSelector({ onSelect, onClose }) {
                     if (item.isFolder) {
                       setCurrentPath(currentPath ? `${currentPath}/${item.name}` : item.name);
                     } else {
-                      onSelect(item.url);
+                      onSelect(item.url, item.type);
                     }
                   }}
                   style={{ 
@@ -118,6 +123,7 @@ export default function MediaSelector({ onSelect, onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
