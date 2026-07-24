@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import { triggerBuild } from '../../lib/triggerBuild';
 import { FiSave, FiPlus, FiTrash2, FiEdit2, FiCheck, FiX, FiImage, FiMoreVertical } from 'react-icons/fi';
 import toast from 'react-hot-toast';
@@ -9,6 +10,7 @@ import MediaSelector from '../../components/common/MediaSelector';
 export default function AnnouncementsManager() {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
@@ -56,11 +58,18 @@ export default function AnnouncementsManager() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this announcement?')) return;
+  const handleDelete = (id) => {
+    setConfirmDelete(id);
+  };
+
+  const executeDelete = async () => {
+    const id = confirmDelete;
+    if (!id) return;
+    
     await supabase.from('announcements').delete().eq('id', id);
     fetchAnnouncements();
     triggerBuild();
+      setConfirmDelete(null);
   };
 
   const toggleActive = async (id, currentStatus) => {
@@ -387,6 +396,14 @@ export default function AnnouncementsManager() {
           onClose={() => setShowMediaSelector(false)}
         />
       )}
+    
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Announcement"
+        message="Are you sure you want to delete this announcement? This action cannot be undone."
+      />
     </AdminLayout>
   );
 }

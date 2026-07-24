@@ -4,6 +4,7 @@ import { FiUploadCloud, FiSearch, FiTrash2, FiCopy, FiCheckCircle, FiFolder, FiF
 import { supabase } from '../../lib/supabase';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import PromptModal from '../../components/common/PromptModal';
+import toast from 'react-hot-toast';
 
 export default function MediaManager() {
   const [items, setItems] = useState([]);
@@ -105,16 +106,22 @@ export default function MediaManager() {
       if (!sanitizedNewName.endsWith(`.${extension}`)) sanitizedNewName += `.${extension}`;
     }
 
+    if (sanitizedNewName === oldName) {
+      setPromptRename(null);
+      return;
+    }
+
     const oldPath = currentPath ? `blog-images/${currentPath}/${oldName}` : `blog-images/${oldName}`;
     const newPath = currentPath ? `blog-images/${currentPath}/${sanitizedNewName}` : `blog-images/${sanitizedNewName}`;
 
     try {
       const { error } = await supabase.storage.from('images').move(oldPath, newPath);
       if (error) throw error;
+      toast.success(`${isFolder ? 'Folder' : 'File'} renamed successfully`);
       await fetchItems();
     } catch (err) {
       console.error('Error renaming item:', err);
-      alert('Failed to rename item. Make sure the name is unique.');
+      toast.error('Failed to rename item. Make sure the name is unique.');
     }
   };
 

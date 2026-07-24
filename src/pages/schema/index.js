@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import { triggerBuild } from '../../lib/triggerBuild';
 import { FiPlus, FiSearch, FiCode, FiTrash2, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
 import toast from 'react-hot-toast';
@@ -14,6 +15,7 @@ const SCHEMA_TYPES = [
 export default function SchemaManager() {
   const [schemas, setSchemas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   const [showModal, setShowModal] = useState(false);
@@ -118,8 +120,14 @@ export default function SchemaManager() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this schema?')) return;
+  const handleDelete = (id) => {
+    setConfirmDelete(id);
+  };
+
+  const executeDelete = async () => {
+    const id = confirmDelete;
+    if (!id) return;
+    
     const { error } = await supabase.from('schemas').delete().eq('id', id);
     if (error) toast.error('Error deleting schema');
     else {
@@ -127,6 +135,7 @@ export default function SchemaManager() {
       fetchSchemas();
       triggerBuild();
     }
+      setConfirmDelete(null);
   };
 
   const filteredSchemas = schemas.filter(s => 
@@ -271,6 +280,14 @@ export default function SchemaManager() {
           </div>
         </div>
       )}
+    
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Schema"
+        message="Are you sure you want to delete this schema? This action cannot be undone."
+      />
     </AdminLayout>
   );
 }

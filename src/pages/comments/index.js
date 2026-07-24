@@ -4,10 +4,12 @@ import { FiCheck, FiX, FiTrash2, FiMessageSquare, FiExternalLink } from 'react-i
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 export default function CommentsManager() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [filter, setFilter] = useState('pending'); // 'all', 'pending', 'approved', 'spam', 'trash'
 
   useEffect(() => {
@@ -42,8 +44,14 @@ export default function CommentsManager() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Permanently delete this comment?')) return;
+  const handleDelete = (id) => {
+    setConfirmDelete(id);
+  };
+
+  const executeDelete = async () => {
+    const id = confirmDelete;
+    if (!id) return;
+    
     try {
       const { error } = await supabase.from('blog_comments').delete().eq('id', id);
       if (error) throw error;
@@ -52,6 +60,7 @@ export default function CommentsManager() {
     } catch (e) {
       toast.error('Failed to delete comment');
     }
+      setConfirmDelete(null);
   };
 
   return (
@@ -148,6 +157,14 @@ export default function CommentsManager() {
           </tbody>
         </table>
       </div>
+    
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action cannot be undone."
+      />
     </AdminLayout>
   );
 }

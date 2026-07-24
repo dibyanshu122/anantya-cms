@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminLayout from '../../components/layout/AdminLayout';
+import ConfirmModal from '../../components/common/ConfirmModal';
+import PromptModal from '../../components/common/PromptModal';
 import TipTapEditor from '../../components/blog/TipTapEditor';
 import SeoScoreWidget from '../../components/seo/SeoScoreWidget';
 import AIAssistantPanel from '../../components/seo/AIAssistantPanel';
@@ -16,6 +18,8 @@ export default function EditBlog() {
   const router = useRouter();
   const { id } = router.query;
   const [loading, setLoading] = useState(false);
+  const [confirmRestore, setConfirmRestore] = useState(null);
+  const [promptAI, setPromptAI] = useState(false);
   const [fetching, setFetching] = useState(true);
 
   // Blog Content
@@ -172,7 +176,8 @@ export default function EditBlog() {
     const timeout = setTimeout(() => {
       handleAutoSave();
     }, 15000);
-    return () => clearTimeout(timeout);
+    
+  return () => clearTimeout(timeout);
   }, [title, content, excerpt, status, featuredImage, seoTitle, seoDescription, focusKeyword]);
 
 
@@ -311,10 +316,21 @@ export default function EditBlog() {
     }
   };
 
-  const generateContent = async () => {
-    const prompt = window.prompt("What should the AI write about?");
+    const executeRestore = () => {
+    if (!confirmRestore) return;
+    setContent(confirmRestore.content);
+    setTitle(confirmRestore.title);
+    setShowRevisions(false);
+    toast.success('Revision restored. Click Save to apply.');
+    setConfirmRestore(null);
+  };
+
+  const handleGenerateClick = () => {
+    setPromptAI(true);
+  };
+
+  const executeGenerate = async (prompt) => {
     if (!prompt) return;
-    
     setLoading(true);
     try {
       const res = await fetch('/api/ai/generate-content', {
@@ -337,7 +353,27 @@ export default function EditBlog() {
     return (
       <AdminLayout title="Edit Blog Post">
         <div style={{ padding: 20 }}>Loading...</div>
-      </AdminLayout>
+      
+      <PromptModal
+        isOpen={promptAI}
+        onClose={() => setPromptAI(false)}
+        onSubmit={executeGenerate}
+        title="AI Assistant"
+        message="What should the AI write about?"
+        placeholder="Enter a topic or instruction..."
+        submitText="Generate"
+      />
+
+      <ConfirmModal
+        isOpen={!!confirmRestore}
+        onClose={() => setConfirmRestore(null)}
+        onConfirm={executeRestore}
+        title="Restore Revision"
+        message="Restore this revision? Your current unsaved changes will be lost."
+        confirmText="Restore"
+        isDanger={true}
+      />
+    </AdminLayout>
     );
   }
 
@@ -367,7 +403,7 @@ export default function EditBlog() {
           <div className="cms-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
               <input type="text" placeholder="Blog Post Title" value={title} onChange={handleTitleChange} style={{ flex: 1, fontSize: 24, fontWeight: 700, background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none' }} />
-              <button onClick={generateContent} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'linear-gradient(135deg, #018E9E, #026773)', border: 'none', borderRadius: 6, color: '#fff', fontSize: 12, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer' }}>✨ AI Write</button>
+              <button onClick={handleGenerateClick} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'linear-gradient(135deg, #018E9E, #026773)', border: 'none', borderRadius: 6, color: '#fff', fontSize: 12, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer' }}>✨ AI Write</button>
             </div>
             <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>Permalink: /blog/</span>
@@ -593,12 +629,7 @@ export default function EditBlog() {
                         <div style={{ fontSize: 12, color: 'var(--muted)' }}>{new Date(rev.created_at).toLocaleString()}</div>
                       </div>
                       <button onClick={() => {
-                        if(window.confirm('Restore this revision? Your current unsaved changes will be lost.')) {
-                          setContent(rev.content);
-                          setTitle(rev.title);
-                          setShowRevisions(false);
-                          toast.success('Revision restored. Click Save to apply.');
-                        }
+                        setConfirmRestore(rev);
                       }} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: 12 }}>
                         Restore
                       </button>
@@ -617,6 +648,26 @@ export default function EditBlog() {
           onClose={() => setMediaTarget(null)} 
         />
       )}
+    
+      <PromptModal
+        isOpen={promptAI}
+        onClose={() => setPromptAI(false)}
+        onSubmit={executeGenerate}
+        title="AI Assistant"
+        message="What should the AI write about?"
+        placeholder="Enter a topic or instruction..."
+        submitText="Generate"
+      />
+
+      <ConfirmModal
+        isOpen={!!confirmRestore}
+        onClose={() => setConfirmRestore(null)}
+        onConfirm={executeRestore}
+        title="Restore Revision"
+        message="Restore this revision? Your current unsaved changes will be lost."
+        confirmText="Restore"
+        isDanger={true}
+      />
     </AdminLayout>
   );
 }

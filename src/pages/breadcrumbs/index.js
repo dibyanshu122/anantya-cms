@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import { FiPlus, FiTrash2, FiEdit2, FiSave, FiList, FiCheck, FiX } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 export default function BreadcrumbsManager() {
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -104,14 +106,21 @@ export default function BreadcrumbsManager() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this breadcrumb config?')) return;
+  const handleDelete = (id) => {
+    setConfirmDelete(id);
+  };
+
+  const executeDelete = async () => {
+    const id = confirmDelete;
+    if (!id) return;
+    
     const { error } = await supabase.from('breadcrumbs').delete().eq('id', id);
     if (error) toast.error('Error deleting');
     else {
       toast.success('Deleted');
       fetchBreadcrumbs();
     }
+      setConfirmDelete(null);
   };
 
   return (
@@ -245,6 +254,14 @@ export default function BreadcrumbsManager() {
           </div>
         </div>
       )}
+    
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Breadcrumb"
+        message="Are you sure you want to delete this breadcrumb? This action cannot be undone."
+      />
     </AdminLayout>
   );
 }

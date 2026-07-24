@@ -16,6 +16,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import MediaSelector from '../common/MediaSelector';
+import PromptModal from '../common/PromptModal';
 
 const Video = Node.create({
   name: 'video',
@@ -33,15 +34,17 @@ const Video = Node.create({
 
 const MenuBar = ({ editor }) => {
   const [showMediaSelector, setShowMediaSelector] = React.useState(false);
+  const [promptLink, setPromptLink] = React.useState(false);
+  const [promptImageAlt, setPromptImageAlt] = React.useState(null);
+  const [promptImageTitle, setPromptImageTitle] = React.useState(null);
 
   if (!editor) return null;
 
   const btnClass = (active) => `toolbar-btn ${active ? 'is-active' : ''}`;
 
-  const setLink = () => {
-    const url = window.prompt('URL');
-    if (url === null) return;
-    if (url === '') {
+  const setLink = () => { setPromptLink(true); };
+  const executeSetLink = (url) => {
+    if (!url) {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
       return;
     }
@@ -78,6 +81,39 @@ const MenuBar = ({ editor }) => {
   };
 
   return (
+    <>
+      <PromptModal
+        isOpen={promptLink}
+        onClose={() => setPromptLink(false)}
+        onSubmit={executeSetLink}
+        title="Insert Link"
+        message="Enter the URL for the link:"
+        placeholder="https://..."
+        submitText="Insert"
+      />
+      <PromptModal
+        isOpen={!!promptImageAlt}
+        onClose={() => setPromptImageAlt(null)}
+        onSubmit={(alt) => {
+           setPromptImageTitle({ url: promptImageAlt.url, alt: alt || '' });
+        }}
+        title="Image SEO"
+        message="Enter Image Alt Text:"
+        placeholder="Describe the image..."
+        submitText="Next"
+      />
+      <PromptModal
+        isOpen={!!promptImageTitle}
+        onClose={() => setPromptImageTitle(null)}
+        onSubmit={(title) => {
+           const { url, alt } = promptImageTitle;
+           editor.chain().focus().setImage({ src: url, alt, title: title || '' }).run();
+        }}
+        title="Image Details"
+        message="Enter Image Title (Optional):"
+        placeholder="Image title..."
+        submitText="Insert Image"
+      />
     <div className="tiptap-toolbar">
       {/* Headings */}
       <select 
@@ -195,9 +231,7 @@ const MenuBar = ({ editor }) => {
             if (type === 'video') {
               editor.chain().focus().insertContent({ type: 'video', attrs: { src: url } }).run();
             } else {
-              const altText = window.prompt("Enter Image Alt Text (SEO):", "");
-              const titleText = window.prompt("Enter Image Title (Optional):", "");
-              editor.chain().focus().setImage({ src: url, alt: altText || '', title: titleText || '' }).run();
+              setPromptImageAlt({ url });
             }
             setShowMediaSelector(false);
           }} 
@@ -248,6 +282,7 @@ const MenuBar = ({ editor }) => {
         <FiTOC size={14} style={{ marginRight: 6 }} /> Auto TOC
       </button>
     </div>
+    </>
   );
 };
 

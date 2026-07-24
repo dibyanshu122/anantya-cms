@@ -5,10 +5,12 @@ import { FiPlus, FiEdit2, FiTrash2, FiTag } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 export default function TagsIndex() {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,8 +28,14 @@ export default function TagsIndex() {
     setLoading(false);
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this tag?')) return;
+  const handleDelete = (id) => {
+    setConfirmDelete(id);
+  };
+
+  const executeDelete = async () => {
+    const id = confirmDelete;
+    if (!id) return;
+    
     
     try {
       const { error } = await supabase.from('tags').delete().eq('id', id);
@@ -37,6 +45,7 @@ export default function TagsIndex() {
     } catch (e) {
       toast.error('Failed to delete tag');
     }
+      setConfirmDelete(null);
   };
 
   return (
@@ -83,6 +92,14 @@ export default function TagsIndex() {
           </tbody>
         </table>
       </div>
+    
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Tag"
+        message="Are you sure you want to delete this tag? This action cannot be undone."
+      />
     </AdminLayout>
   );
 }

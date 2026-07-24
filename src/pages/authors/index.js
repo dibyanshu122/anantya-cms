@@ -5,10 +5,12 @@ import { FiPlus, FiEdit2, FiTrash2, FiUser } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 export default function AuthorsIndex() {
   const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,8 +28,14 @@ export default function AuthorsIndex() {
     setLoading(false);
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this author?')) return;
+  const handleDelete = (id) => {
+    setConfirmDelete(id);
+  };
+
+  const executeDelete = async () => {
+    const id = confirmDelete;
+    if (!id) return;
+    
     
     try {
       const { error } = await supabase.from('authors').delete().eq('id', id);
@@ -37,6 +45,7 @@ export default function AuthorsIndex() {
     } catch (e) {
       toast.error('Failed to delete author');
     }
+      setConfirmDelete(null);
   };
 
   return (
@@ -91,6 +100,14 @@ export default function AuthorsIndex() {
           </tbody>
         </table>
       </div>
+    
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Author"
+        message="Are you sure you want to delete this author? This action cannot be undone."
+      />
     </AdminLayout>
   );
 }

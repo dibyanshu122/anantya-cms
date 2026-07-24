@@ -5,10 +5,12 @@ import { FiPlus, FiEdit2, FiTrash2, FiFolder } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 export default function CategoriesIndex() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,8 +28,14 @@ export default function CategoriesIndex() {
     setLoading(false);
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) return;
+  const handleDelete = (id) => {
+    setConfirmDelete(id);
+  };
+
+  const executeDelete = async () => {
+    const id = confirmDelete;
+    if (!id) return;
+    
     
     try {
       const { error } = await supabase.from('categories').delete().eq('id', id);
@@ -37,6 +45,7 @@ export default function CategoriesIndex() {
     } catch (e) {
       toast.error('Failed to delete category');
     }
+      setConfirmDelete(null);
   };
 
   return (
@@ -85,6 +94,14 @@ export default function CategoriesIndex() {
           </tbody>
         </table>
       </div>
+    
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? This action cannot be undone."
+      />
     </AdminLayout>
   );
 }

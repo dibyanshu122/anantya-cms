@@ -323,7 +323,30 @@ export default function BlogEditor({ blogId }) {
             <div className={styles.contentTab}>
               <div className={styles.editorMain}>
                 {/* TipTap Toolbar */}
-                <div className={styles.toolbar}>
+                
+          <PromptModal
+            isOpen={promptLink}
+            onClose={() => setPromptLink(false)}
+            onSubmit={(url) => {
+              if (url) editor?.chain().focus().setLink({ href: url }).run();
+            }}
+            title="Insert Link"
+            message="Enter the URL for the link:"
+            placeholder="https://..."
+            submitText="Insert"
+          />
+          <PromptModal
+            isOpen={promptImage}
+            onClose={() => setPromptImage(false)}
+            onSubmit={(url) => {
+              if (url) editor?.chain().focus().setImage({ src: url }).run();
+            }}
+            title="Insert Image"
+            message="Enter the Image URL:"
+            placeholder="https://..."
+            submitText="Insert Image"
+          />
+          <div className={styles.toolbar}>
                   <ToolbarBtn onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive('bold')} title="Bold">
                     <FiBold />
                   </ToolbarBtn>
@@ -354,16 +377,10 @@ export default function BlogEditor({ blogId }) {
                     <FiCode />
                   </ToolbarBtn>
                   <div className={styles.toolbarDivider} />
-                  <ToolbarBtn onClick={() => {
-                    const url = prompt('URL:');
-                    if (url) editor?.chain().focus().setLink({ href: url }).run();
-                  }} active={editor?.isActive('link')} title="Link">
+                  <ToolbarBtn onClick={() => setPromptLink(true)} active={editor?.isActive('link')} title="Link">
                     <FiLink />
                   </ToolbarBtn>
-                  <ToolbarBtn onClick={() => {
-                    const url = prompt('Image URL:');
-                    if (url) editor?.chain().focus().setImage({ src: url }).run();
-                  }} title="Image">
+                  <ToolbarBtn onClick={() => setPromptImage(true)} title="Image">
                     <FiImage />
                   </ToolbarBtn>
                   <div className={styles.toolbarDivider} />
