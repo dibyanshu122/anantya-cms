@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { FiUploadCloud, FiSearch, FiTrash2, FiCopy, FiCheckCircle, FiFolder, FiFolderPlus, FiChevronRight, FiVideo, FiImage, FiEdit2 } from 'react-icons/fi';
 import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/common/ConfirmModal';
+import PromptModal from '../../components/common/PromptModal';
 
 export default function MediaManager() {
   const [items, setItems] = useState([]);
@@ -11,6 +13,8 @@ export default function MediaManager() {
   const [currentPath, setCurrentPath] = useState('');
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folderNameInput, setFolderNameInput] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [promptRename, setPromptRename] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -77,25 +81,7 @@ export default function MediaManager() {
     }
   };
 
-  const handleCreateFolderSubmit = async (e) => {
-    e.preventDefault();
-    if (!folderNameInput.trim()) return;
-    
-    const sanitized = folderNameInput.trim().replace(/[^a-z0-9]/gi, '-').toLowerCase();
-    const folderPath = currentPath ? `blog-images/${currentPath}/${sanitized}` : `blog-images/${sanitized}`;
-    
-    try {
-      const { error } = await supabase.storage.from('images').upload(`${folderPath}/.emptyFolderPlaceholder`, new Blob(['']));
-      if (error) throw error;
-      await fetchItems();
-    } catch (err) {
-      console.error('Error creating folder:', err);
-      alert('Failed to create folder');
-    } finally {
-      setShowFolderModal(false);
-      setFolderNameInput('');
-    }
-  };
+  
 
   const copyUrl = (id, url) => {
     navigator.clipboard.writeText(url);
@@ -103,10 +89,14 @@ export default function MediaManager() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const renameItem = async (oldName, isFolder) => {
+  const renameItem = (oldName, isFolder) => {
     const defaultName = isFolder ? oldName : (oldName.split('.').slice(0, -1).join('.') || oldName);
-    const newName = prompt(`Enter new name for the ${isFolder ? 'folder' : 'file'}:`, defaultName);
-    if (!newName || newName === oldName) return;
+    setPromptRename({ oldName, isFolder, defaultName });
+  };
+
+  const executeRename = async (newName) => {
+    if (!promptRename || !newName || newName === promptRename.oldName) return;
+    const { oldName, isFolder } = promptRename;
 
     let sanitizedNewName = newName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
 
@@ -119,51 +109,40 @@ export default function MediaManager() {
     const newPath = currentPath ? `blog-images/${currentPath}/${sanitizedNewName}` : `blog-images/${sanitizedNewName}`;
 
     try {
-      if (isFolder) {
-        const { data } = await supabase.storage.from('images').list(oldPath);
-        if (data && data.length > 0) {
-          for (const file of data) {
-            await supabase.storage.from('images').move(`${oldPath}/${file.name}`, `${newPath}/${file.name}`);
-          }
-        } else {
-            // For completely empty folders that just have the placeholder
-            const emptyBlob = new Blob([''], { type: 'text/plain' });
-            await supabase.storage.from('images').upload(`${newPath}/.emptyFolderPlaceholder`, emptyBlob);
-            await supabase.storage.from('images').remove([`${oldPath}/.emptyFolderPlaceholder`]);
-        }
-      } else {
-        const { error } = await supabase.storage.from('images').move(oldPath, newPath);
-        if (error) throw error;
-      }
-      
+      const { error } = await supabase.storage.from('images').move(oldPath, newPath);
+      if (error) throw error;
       await fetchItems();
     } catch (err) {
       console.error('Error renaming item:', err);
-      alert('Failed to rename item: ' + err.message);
+      alert('Failed to rename item. Make sure the name is unique.');
     }
   };
 
-  const deleteItem = async (name, isFolder) => {
-    if(confirm('Are you sure you want to delete this?')) {
-      try {
-        const pathToDelete = currentPath ? `blog-images/${currentPath}/${name}` : `blog-images/${name}`;
-        if (isFolder) {
-          const { data } = await supabase.storage.from('images').list(pathToDelete);
-          if (data && data.length > 0) {
-            const filesToRemove = data.map(x => `${pathToDelete}/${x.name}`);
-            if (filesToRemove.length > 0) {
-              await supabase.storage.from('images').remove(filesToRemove);
-            }
+  const deleteItem = (name, isFolder) => {
+    setConfirmDelete({ name, isFolder });
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDelete) return;
+    const { name, isFolder } = confirmDelete;
+    try {
+      const pathToDelete = currentPath ? `blog-images/${currentPath}/${name}` : `blog-images/${name}`;
+      if (isFolder) {
+        const { data } = await supabase.storage.from('images').list(pathToDelete);
+        if (data && data.length > 0) {
+          const filesToRemove = data.map(x => `${pathToDelete}/${x.name}`);
+          if (filesToRemove.length > 0) {
+            await supabase.storage.from('images').remove(filesToRemove);
           }
-        } else {
-          const { error } = await supabase.storage.from('images').remove([pathToDelete]);
-          if (error) throw error;
         }
-        await fetchItems();
-      } catch (err) {
-        console.error('Error deleting item:', err);
-        alert('Failed to delete item');
+      } else {
+        const { error } = await supabase.storage.from('images').remove([pathToDelete]);
+        if (error) throw error;
       }
+      await fetchItems();
+    } catch (err) {
+      console.error('Error deleting item:', err);
+      alert('Failed to delete item');
     }
   };
 
@@ -253,12 +232,14 @@ export default function MediaManager() {
                     {copiedId === item.id ? <><FiCheckCircle color="#22C55E" /> Copied</> : <><FiCopy /> Copy URL</>}
                   </button>
                 )}
-                <button onClick={() => renameItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, marginLeft: item.isFolder ? 'auto' : 'auto' }} title="Rename">
-                  <FiEdit2 size={14} />
-                </button>
-                <button onClick={() => deleteItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, marginLeft: item.isFolder ? 'auto' : 0 }} title="Delete">
-                  <FiTrash2 size={14} />
-                </button>
+                <div style={{ display: 'flex', gap: 12, marginLeft: item.isFolder ? 0 : 'auto', width: item.isFolder ? '100%' : 'auto', justifyContent: item.isFolder ? 'flex-end' : 'flex-start' }}>
+                  <button onClick={() => renameItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }} title="Rename">
+                    <FiEdit2 size={15} />
+                  </button>
+                  <button onClick={() => deleteItem(item.name, item.isFolder)} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 4 }} title="Delete">
+                    <FiTrash2 size={15} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -266,28 +247,47 @@ export default function MediaManager() {
       </div>
       )}
 
-      {/* Centered Folder Modal overlay */}
-      {showFolderModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', minWidth: '350px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>Create New Folder</h3>
-            <form onSubmit={handleCreateFolderSubmit}>
-              <input 
-                type="text" 
-                placeholder="Enter folder name"
-                style={{ width: '100%', marginBottom: '20px', padding: '8px' }}
-                value={folderNameInput}
-                onChange={(e) => setFolderNameInput(e.target.value)}
-                autoFocus
-              />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                <button type="button" style={{ cursor: 'pointer' }} onClick={() => { setShowFolderModal(false); setFolderNameInput(''); }}>Cancel</button>
-                <button type="submit" style={{ cursor: 'pointer' }}>Create</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Create Folder Modal */}
+      <PromptModal
+        isOpen={showFolderModal}
+        onClose={() => setShowFolderModal(false)}
+        onSubmit={async (val) => {
+          if (!val) return;
+          const sanitized = val.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+          try {
+            const folderPath = currentPath ? `blog-images/${currentPath}/${sanitized}/.keep` : `blog-images/${sanitized}/.keep`;
+            const { error } = await supabase.storage.from('images').upload(folderPath, new Blob(['']), { contentType: 'text/plain' });
+            if (error) throw error;
+            await fetchItems();
+          } catch (err) {
+            console.error('Error creating folder:', err);
+            alert('Failed to create folder');
+          }
+        }}
+        title="Create New Folder"
+        placeholder="Enter folder name"
+        submitText="Create"
+      />
+
+      {/* Rename Item Modal */}
+      <PromptModal
+        isOpen={!!promptRename}
+        onClose={() => setPromptRename(null)}
+        onSubmit={executeRename}
+        title={promptRename ? `Rename ${promptRename.isFolder ? 'Folder' : 'File'}` : ''}
+        defaultValue={promptRename?.defaultName || ''}
+        placeholder="Enter new name"
+      />
+
+      {/* Delete Confirm Modal */}
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Item"
+        message={confirmDelete ? `Are you sure you want to delete "${confirmDelete.name}"?${confirmDelete.isFolder ? ' This will delete all contents inside.' : ''}` : ''}
+        confirmText="Delete"
+      />
     </AdminLayout>
   );
 }
