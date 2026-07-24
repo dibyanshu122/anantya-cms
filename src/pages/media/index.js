@@ -115,8 +115,18 @@ export default function MediaManager() {
     const newPath = currentPath ? `blog-images/${currentPath}/${sanitizedNewName}` : `blog-images/${sanitizedNewName}`;
 
     try {
-      const { error } = await supabase.storage.from('images').move(oldPath, newPath);
-      if (error) throw error;
+      if (isFolder) {
+        const { data } = await supabase.storage.from('images').list(oldPath);
+        if (data && data.length > 0) {
+          for (const file of data) {
+            const { error: moveError } = await supabase.storage.from('images').move(`${oldPath}/${file.name}`, `${newPath}/${file.name}`);
+            if (moveError) throw moveError;
+          }
+        }
+      } else {
+        const { error } = await supabase.storage.from('images').move(oldPath, newPath);
+        if (error) throw error;
+      }
       toast.success(`${isFolder ? 'Folder' : 'File'} renamed successfully`);
       await fetchItems();
     } catch (err) {
