@@ -10,6 +10,7 @@ import {
 import { format } from 'date-fns';
 import AdminLayout from '../components/layout/AdminLayout';
 import { supabase } from '../lib/supabase';
+import { triggerBuild } from '../lib/triggerBuild';
 
 /* ================================================================
    HELPER: SEO score styling
@@ -194,12 +195,17 @@ export default function Dashboard() {
     fetchSeoIssues();
   }, [fetchStats, fetchRecentBlogs, fetchSeoIssues]);
 
-  /* ---- Generate sitemap (stub) ---- */
+  /* ---- Generate sitemap ---- */
   const handleGenerateSitemap = async () => {
     setGenerateLoading(true);
-    await new Promise(r => setTimeout(r, 1400));
-    setGenerateLoading(false);
-    alert('Sitemap generation triggered! (Connect your sitemap API endpoint)');
+    try {
+      await triggerBuild();
+      alert('Sitemap generation triggered successfully!');
+    } catch (err) {
+      alert('Failed to trigger sitemap generation.');
+    } finally {
+      setGenerateLoading(false);
+    }
   };
 
   /* ---- Severity dot color ---- */
