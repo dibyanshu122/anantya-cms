@@ -25,6 +25,7 @@ import {
   FiSidebar,
   FiFolder,
   FiTag,
+  FiActivity,
 } from 'react-icons/fi';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
