@@ -114,7 +114,7 @@ const MenuBar = ({ editor }) => {
         placeholder="Image title..."
         submitText="Insert Image"
       />
-    <div className="tiptap-toolbar" style={{ borderBottom: '1px solid #eaeaea', backgroundColor: '#fff' }}>
+    <div className="tiptap-toolbar" style={{ borderBottom: '1px solid var(--border-color, #eaeaea)' }}>
       {/* Headings */}
       <select 
         className="form-select toolbar-select"
@@ -313,9 +313,9 @@ export default function TipTapEditor({ content, onChange, placeholder = 'Write y
   }, [content, editor]);
 
   return (
-    <div className="tiptap-container" style={{ display: 'flex', flexDirection: 'column', border: '1px solid #eaeaea', borderRadius: '8px', overflow: 'hidden' }}>
+    <div className="tiptap-container" style={{ display: 'flex', flexDirection: 'column', border: '1px solid var(--border-color, #eaeaea)', borderRadius: '8px', overflow: 'hidden' }}>
       <MenuBar editor={editor} />
-      <div style={{ height: '70vh', minHeight: '400px', overflowY: 'auto', backgroundColor: '#fff', padding: '15px' }}>
+      <div style={{ height: '70vh', minHeight: '400px', overflowY: 'auto', padding: '15px', resize: 'vertical' }}>
         <EditorContent editor={editor} className="tiptap-content-wrap" style={{ minHeight: '100%' }} />
       </div>
     </div>
