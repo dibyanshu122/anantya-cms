@@ -114,7 +114,7 @@ const MenuBar = ({ editor }) => {
         placeholder="Image title..."
         submitText="Insert Image"
       />
-    <div className="tiptap-toolbar">
+    <div className="tiptap-toolbar" style={{ position: 'sticky', top: '0px', zIndex: 50, backgroundColor: '#fff' }}>
       {/* Headings */}
       <select 
         className="form-select toolbar-select"
