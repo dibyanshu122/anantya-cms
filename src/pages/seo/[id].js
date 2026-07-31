@@ -11,8 +11,9 @@ import {
 import SchemaBuilder from '../../components/seo/SchemaBuilder';
 
 const SCHEMA_TYPES = [
-  'None', 'Article', 'BlogPosting', 'Organization', 'WebSite', 'WebPage',
-  'Product', 'FAQPage', 'HowTo', 'BreadcrumbList', 'LocalBusiness', 'Service',
+  'None', 'Organization', 'Website', 'WebPage', 'Article', 'BlogPosting', 
+  'FAQ', 'Breadcrumb', 'Product', 'Service', 
+  'LocalBusiness', 'Video', 'Custom'
 ];
 
 const ROBOTS_INDEX = ['index', 'noindex'];

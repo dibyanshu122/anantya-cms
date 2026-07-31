@@ -7,9 +7,9 @@ import { FiPlus, FiSearch, FiCode, FiTrash2, FiEdit2, FiCheck, FiX } from 'react
 import toast from 'react-hot-toast';
 
 const SCHEMA_TYPES = [
-  'Organization', 'WebPage', 'Article', 'BlogPosting', 
-  'FAQPage', 'BreadcrumbList', 'Product', 'Service', 
-  'LocalBusiness', 'VideoObject', 'Custom'
+  'Organization', 'Website', 'WebPage', 'Article', 'BlogPosting', 
+  'FAQ', 'Breadcrumb', 'Product', 'Service', 
+  'LocalBusiness', 'Video', 'Custom'
 ];
 
 export default function SchemaManager() {

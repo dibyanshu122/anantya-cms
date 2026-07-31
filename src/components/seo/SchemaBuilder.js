@@ -106,7 +106,7 @@ export default function SchemaBuilder({ schemaType, initialSchema, onChange }) {
         <FiCode color="#018E9E" /> Dynamic {schemaType} Builder
       </h4>
       
-      {schemaType === 'FAQPage' ? renderFaqBuilder() : 
+      {schemaType === 'FAQ' ? renderFaqBuilder() : 
        schemaType === 'Article' || schemaType === 'BlogPosting' ? renderArticleBuilder() : 
        <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Visual builder for {schemaType} is coming soon. Please use raw JSON editor for now.</div>}
        
