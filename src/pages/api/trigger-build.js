@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`https://api.github.com/repos/${githubRepo}/dispatches`, {
+    const response = await fetch(`https://api.github.com/repos/${githubRepo}/actions/workflows/main.yml/dispatches`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${githubToken}`,
@@ -21,10 +21,7 @@ export default async function handler(req, res) {
         'X-GitHub-Api-Version': '2022-11-28',
       },
       body: JSON.stringify({
-        event_type: 'cms-content-update',
-        client_payload: {
-          triggered_at: new Date().toISOString(),
-        },
+        ref: 'production',
       }),
     });
 
