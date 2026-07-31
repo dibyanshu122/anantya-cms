@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -80,8 +80,22 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const sidebarNavRef = useRef(null);
 
   const { isCollapsed, toggleCollapse, theme, toggleTheme } = useAppContext();
+
+  useEffect(() => {
+    if (sidebarNavRef.current) {
+      const savedScroll = sessionStorage.getItem('cmsSidebarScroll');
+      if (savedScroll) {
+        sidebarNavRef.current.scrollTop = parseInt(savedScroll, 10);
+      }
+    }
+  }, []);
+
+  const handleNavScroll = (e) => {
+    sessionStorage.setItem('cmsSidebarScroll', e.target.scrollTop);
+  };
 
   /* Fetch current user & Auto-create Author profile */
   useEffect(() => {
@@ -377,7 +391,7 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
           </div>
 
           {/* Navigation */}
-          <nav className="sidebar-nav" aria-label="Main navigation">
+          <nav className="sidebar-nav" aria-label="Main navigation" ref={sidebarNavRef} onScroll={handleNavScroll}>
             {NAV_SECTIONS.map((section) => (
               <div key={section.label}>
                 <p className="sidebar-section-label">{section.label}</p>
