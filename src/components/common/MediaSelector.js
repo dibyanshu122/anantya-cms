@@ -24,7 +24,7 @@ export default function MediaSelector({ onSelect, onClose }) {
       });
       if (error) throw error;
       
-      const formattedItems = data.filter(file => file.name !== '.emptyFolderPlaceholder').map(file => {
+      const formattedItems = data.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '.keep').map(file => {
         if (file.id === null || !file.metadata) {
           return { isFolder: true, name: file.name, id: 'folder-'+file.name };
         }

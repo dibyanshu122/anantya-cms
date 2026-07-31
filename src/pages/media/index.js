@@ -16,6 +16,7 @@ export default function MediaManager() {
   const [folderNameInput, setFolderNameInput] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [promptRename, setPromptRename] = useState(null);
+  const [dragOverTarget, setDragOverTarget] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function MediaManager() {
       });
       if (error) throw error;
       
-      const formattedItems = data.filter(file => file.name !== '.emptyFolderPlaceholder').map(file => {
+      const formattedItems = data.filter(file => file.name !== '.emptyFolderPlaceholder' && file.name !== '.keep').map(file => {
         if (file.id === null || !file.metadata) {
           return { isFolder: true, name: file.name, id: 'folder-'+file.name };
         }
@@ -135,6 +136,28 @@ export default function MediaManager() {
     }
   };
 
+  const executeMove = async (draggedItem, targetFolderPath) => {
+    if (draggedItem.isFolder) return;
+    
+    const oldName = draggedItem.name;
+    const oldPath = currentPath ? `blog-images/${currentPath}/${oldName}` : `blog-images/${oldName}`;
+    const newPath = targetFolderPath ? `blog-images/${targetFolderPath}/${oldName}` : `blog-images/${oldName}`;
+    
+    if (oldPath === newPath) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.storage.from('images').move(oldPath, newPath);
+      if (error) throw error;
+      toast.success(`Moved successfully`);
+      await fetchItems();
+    } catch (err) {
+      console.error('Error moving item:', err);
+      toast.error('Failed to move item.');
+      setLoading(false);
+    }
+  };
+
   const deleteItem = (name, isFolder) => {
     setConfirmDelete({ name, isFolder });
   };
@@ -168,18 +191,61 @@ export default function MediaManager() {
       {/* Top Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-primary)', fontWeight: 600 }}>
-          <span style={{ cursor: 'pointer', color: currentPath ? '#018E9E' : 'inherit' }} onClick={() => setCurrentPath('')}>Home</span>
-          {currentPath && currentPath.split('/').map((part, index, arr) => (
-             <span key={index} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-               <FiChevronRight />
-               <span 
-                 style={{ cursor: 'pointer', color: index === arr.length - 1 ? 'inherit' : '#018E9E' }}
-                 onClick={() => setCurrentPath(arr.slice(0, index + 1).join('/'))}
-               >
-                 {part}
-               </span>
-             </span>
-          ))}
+          <span 
+            style={{ 
+              cursor: 'pointer', 
+              color: currentPath ? '#018E9E' : 'inherit',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              background: dragOverTarget === 'root' ? 'rgba(1, 142, 158, 0.1)' : 'transparent',
+              border: dragOverTarget === 'root' ? '1px dashed #018E9E' : '1px solid transparent'
+            }} 
+            onClick={() => setCurrentPath('')}
+            onDragOver={(e) => { e.preventDefault(); setDragOverTarget('root'); }}
+            onDragLeave={() => setDragOverTarget(null)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOverTarget(null);
+              const draggedItem = JSON.parse(e.dataTransfer.getData('application/json'));
+              executeMove(draggedItem, '');
+            }}
+          >
+            Home
+          </span>
+          {currentPath && currentPath.split('/').map((part, index, arr) => {
+            const targetPath = arr.slice(0, index + 1).join('/');
+            const isLast = index === arr.length - 1;
+            return (
+              <span key={index} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FiChevronRight />
+                <span 
+                  style={{ 
+                    cursor: 'pointer', 
+                    color: isLast ? 'inherit' : '#018E9E',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    background: dragOverTarget === targetPath && !isLast ? 'rgba(1, 142, 158, 0.1)' : 'transparent',
+                    border: dragOverTarget === targetPath && !isLast ? '1px dashed #018E9E' : '1px solid transparent'
+                  }}
+                  onClick={() => setCurrentPath(targetPath)}
+                  onDragOver={(e) => { 
+                    if (!isLast) { e.preventDefault(); setDragOverTarget(targetPath); } 
+                  }}
+                  onDragLeave={() => setDragOverTarget(null)}
+                  onDrop={(e) => {
+                    if (!isLast) {
+                      e.preventDefault();
+                      setDragOverTarget(null);
+                      const draggedItem = JSON.parse(e.dataTransfer.getData('application/json'));
+                      executeMove(draggedItem, targetPath);
+                    }
+                  }}
+                >
+                  {part}
+                </span>
+              </span>
+            );
+          })}
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button 
@@ -210,7 +276,51 @@ export default function MediaManager() {
       ) : (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 20 }}>
         {items.map(item => (
-          <div key={item.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div 
+            key={item.id} 
+            draggable={!item.isFolder}
+            onDragStart={(e) => {
+              if (!item.isFolder) {
+                e.dataTransfer.setData('application/json', JSON.stringify(item));
+              }
+            }}
+            onDragOver={(e) => {
+              if (item.isFolder) {
+                e.preventDefault();
+                setDragOverTarget(item.name);
+              }
+            }}
+            onDragLeave={() => {
+              if (item.isFolder) {
+                setDragOverTarget(null);
+              }
+            }}
+            onDrop={(e) => {
+              if (item.isFolder) {
+                e.preventDefault();
+                setDragOverTarget(null);
+                try {
+                  const draggedItem = JSON.parse(e.dataTransfer.getData('application/json'));
+                  if (draggedItem.id !== item.id) {
+                    const targetFolder = currentPath ? `${currentPath}/${item.name}` : item.name;
+                    executeMove(draggedItem, targetFolder);
+                  }
+                } catch(err) { console.error("Drop error", err); }
+              }
+            }}
+            style={{ 
+              background: 'var(--bg-card)', 
+              border: item.isFolder && dragOverTarget === item.name ? '2px solid #018E9E' : '1px solid var(--border)', 
+              borderRadius: 12, 
+              overflow: 'hidden', 
+              display: 'flex', 
+              flexDirection: 'column',
+              boxShadow: item.isFolder && dragOverTarget === item.name ? '0 0 10px rgba(1, 142, 158, 0.3)' : 'none',
+              transform: item.isFolder && dragOverTarget === item.name ? 'scale(1.02)' : 'scale(1)',
+              transition: 'all 0.2s ease',
+              cursor: item.isFolder ? 'pointer' : 'grab'
+            }}
+          >
             {item.isFolder ? (
               <div 
                 onClick={() => setCurrentPath(currentPath ? `${currentPath}/${item.name}` : item.name)}
