@@ -101,14 +101,14 @@ export default function SchemaManager() {
       if (editId) {
         const { error } = await supabase
           .from('schemas')
-          .update({...formData, schema_json: formData.json_ld})
+          .update(formData)
           .eq('id', editId);
         if (error) throw error;
         toast.success('Schema updated');
       } else {
         const { error } = await supabase
           .from('schemas')
-          .insert([{...formData, schema_json: formData.json_ld}]);
+          .insert([formData]);
         if (error) throw error;
         toast.success('Schema created');
       }
